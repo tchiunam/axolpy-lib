@@ -1,0 +1,6 @@
+# Web3
+Cython
+web3
+
+# Blockchain
+py-solc-x

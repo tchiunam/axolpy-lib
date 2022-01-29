@@ -1,0 +1,9 @@
+# Logging
+coloredlogs
+
+# Testing
+pytest
+pytest-html
+
+# Others
+atlassian-python-api
