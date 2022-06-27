@@ -1,6 +1,9 @@
 # Logging
 coloredlogs
 
+# Solidity
+py-solc-x
+
 # Testing
 pytest
 pytest-html
