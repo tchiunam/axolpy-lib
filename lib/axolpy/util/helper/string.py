@@ -1,7 +1,7 @@
 import hashlib
 import re
 
-__all__ = ["camelcase_to_underscore", "get_string_hex"]
+__all__ = ["camelcase_to_underscore", "get_string_hex", "multiple_replace"]
 
 
 def camelcase_to_underscrollsep(string: str) -> str:
@@ -31,3 +31,20 @@ def get_string_hex(input_string: str) -> str:
 
     hash_object = hashlib.md5(input_string.encode())
     return hash_object.hexdigest()
+
+
+def multiple_replace(string: str, rep: dict) -> str:
+    """
+    Replacement of *string* with multiple patterns.
+
+    :param string: String to be processed.
+    :type string: str
+    :param rep: Match and replace patterns.
+    :type rep: dict
+
+    :return: String after replacement.
+    :rtype: str
+    """
+
+    pattern = re.compile("|".join([re.escape(k) for k in rep.keys()]), re.M)
+    return pattern.sub(lambda x: rep[x.group(0)], string)
