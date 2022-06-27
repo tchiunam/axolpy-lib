@@ -1,5 +1,7 @@
 import hashlib
+from itertools import chain
 import re
+from typing import Iterable
 
 
 def camelcase_to_underscrollsep(string: str) -> str:
@@ -14,6 +16,23 @@ def camelcase_to_underscrollsep(string: str) -> str:
     """
 
     return re.sub(r"(^|[a-z])([A-Z])", lambda m: "_".join([i.lower() for i in m.groups() if i]), string)
+
+
+def expand_range(string: str) -> Iterable[int]:
+    """
+    Expand the range in *string*.
+
+    :param string: String of range.
+    :type string: str
+
+    :return: Expanded range.
+    :rtype: Iterable[int]
+    """
+
+    spans = (element.partition("-")[::2] for element in string.split(","))
+    ranges = (range(int(start), int(end) + 1 if end else int(start) + 1)
+              for start, end in spans)
+    return chain.from_iterable(ranges)
 
 
 def increase_number_in_string(string: str, value: int) -> str:
