@@ -2,7 +2,8 @@ import io
 import random
 import time
 
-__all__ = ["is_text_file", "get_random_bits", "get_timestamp_string"]
+__all__ = ["is_text_file", "get_random_bits",
+           "get_timestamp_string", "set_leaf"]
 
 
 def is_text_file(cls, file_: io.FileIO, blocksize: int = 512) -> bool:
@@ -82,3 +83,23 @@ def get_timestamp_string(date_separator: str = "", time_separator: str = "", com
     return time.strftime("%Y{0}%m{0}%d{1}%H{2}%M{2}%S".format(date_separator,
                                                               component_separator,
                                                               time_separator), time.localtime())
+
+
+def set_leaf(tree: dict, branches: list, leaf: dict) -> None:
+    """
+    Set an element as a leaf within a nested dictionary.
+
+    :param tree: The tree of nested dictionary.
+    :type tree: dict
+    :param branches: This defines the path through dictionaries.
+    :type branches: list
+    :param leaf: The leaf to be added.
+    :type leaf: dict
+    """
+
+    if len(branches) == 1:
+        tree[branches[0]] = leaf
+        return
+    if not branches[0] in tree:
+        tree[branches[0]] = dict()
+    set_leaf(tree[branches[0]], branches[1:], leaf)
