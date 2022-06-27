@@ -1,7 +1,8 @@
 import hashlib
 import re
 
-__all__ = ["camelcase_to_underscore", "get_string_hex", "multiple_replace"]
+__all__ = ["camelcase_to_underscore", "get_string_hex", "increase_number_in_string",
+           "multiple_replace"]
 
 
 def camelcase_to_underscrollsep(string: str) -> str:
@@ -16,6 +17,22 @@ def camelcase_to_underscrollsep(string: str) -> str:
     """
 
     return re.sub(r"(^|[a-z])([A-Z])", lambda m: "_".join([i.lower() for i in m.groups() if i]), string)
+
+
+def increase_number_in_string(string: str, value: int) -> str:
+    """
+    Increase numbers in *string* by the increment *value*.
+
+    :param string: String to be processed.
+    :type string: str
+    :param value: Increment value.
+    :type: int
+
+    :return: String after increment
+    :rtype: str
+    """
+
+    return re.sub("\d+", lambda x: str(int(x.group()) + value), string)
 
 
 def get_string_hex(input_string: str) -> str:
