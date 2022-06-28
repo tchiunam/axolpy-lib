@@ -1,5 +1,7 @@
 from typing import Any, Callable, Generator, Iterable
 
+__all__ = ['expand_iter']
+
 
 def expand_iter(elements: Iterable,
                 from_elements: Iterable,
