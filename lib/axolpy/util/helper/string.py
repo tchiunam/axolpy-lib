@@ -1,6 +1,6 @@
 import hashlib
-from itertools import chain
 import re
+from itertools import chain
 from typing import Iterable
 
 
@@ -48,7 +48,7 @@ def increase_number_in_string(string: str, value: int) -> str:
     :rtype: str
     """
 
-    return re.sub("\d+", lambda x: str(int(x.group()) + value), string)
+    return re.sub(r"\d+", lambda x: str(int(x.group()) + value), string)
 
 
 def get_string_hex(input_string: str) -> str:
