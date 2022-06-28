@@ -1,4 +1,5 @@
 import threading
+from collections import defaultdict
 
 
 class ThreadSafeDict(dict):
@@ -37,3 +38,16 @@ class ImmutableDict(dict):
     setdefault = _immutable
     pop = _immutable
     popitem = _immutable
+
+
+class KeyDefaultDict(defaultdict):
+    """
+    A defaultdict that passes the key to default factory.
+    """
+
+    def __missing__(self, key):
+        if self.default_factory is None:
+            raise KeyError(key)
+        else:
+            self[key] = value = self.default_factory(key)
+            return value
