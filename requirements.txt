@@ -1,6 +1,12 @@
-# Web3
-Cython
-web3
+# Logging
+coloredlogs
 
-# Blockchain
+# Solidity
 py-solc-x
+
+# Testing
+pytest
+pytest-html
+
+# Others
+atlassian-python-api

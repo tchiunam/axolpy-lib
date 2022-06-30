@@ -1,16 +1,11 @@
-# axolpy, the Axolotl Library in Python
+# axolpy-lib, the Axolotl Library in Python
 This is the library and useful scripts of the Axolotl series in 
 Python. The implementation of it aims at providing a handy all-in-one 
-package for writing useful applications. You may configure 
-**axolpy** through configuration file or command line parameters.
+package for writing useful applications.
 
-## Configure axolpy
-_axolpy has not yet been published to PyPi_
-
-Configure the follow environment variables
+## Install axolpy-lib
 ```
-AXOLPY_PATH=~/axolpy        # The path to axolpy directory
-PYTHONPATH=${AXOLPY_PATH}   # The path to the parent directory of axolpy/lib
+pip install axolpy-lib
 ```
 
 ## Run test
@@ -19,6 +14,22 @@ Run pytest
 pytest
 ```
 
+## Build axolpy-lib package
+To build with wheel:
+```
+python -m build
+```
+
+You will see output like this:
+```
+* Creating venv isolated environment...
+* Installing packages in isolated environment... (setuptools>=42, wheel)
+* Getting dependencies for sdist...
+...
+...
+Successfully built axolpy-lib-0.0.1.tar.gz and axolpy_lib-0.0.1-py3-none-any.whl
+```
+
 ---
 #### See more  
-1. [axolgo-cli](https://github.com/tchiunam/axolgo-lic) for the Golang library
+1. [axolpy-cli](https://github.com/tchiunam/axolpy-cli) for using Axolpy in command line

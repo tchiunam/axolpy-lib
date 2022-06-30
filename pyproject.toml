@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "axolpy-lib"
+description = "Axolotl Library in Python"
+version = "0.0.1"
+authors = [
+    { name = "tchiunam", email = "tchiunam@gmail.com" }
+]
+readme = "README.md"
+license = { file = "LICENSE.md" }
+requires-python = ">=3.7"
+keywords = ["axolotl"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "coloredlogs",
+]
+
+[project.optional-dependencies]
+web3 = ["py-solc-x"]
+atlassian = ["atlassian-python-api"]
+
+[project.urls]
+homepage = "https://github.com/tchiunam/axolpy-lib"
+repository = "https://github.com/tchiunam/axolpy-lib"
+documentation = "https://github.com/tchiunam/axolpy-lib"
+
+[tool.black]
+line-length = 88
+target-version = ["py39", "py310"]
+include = '''
+(
+    ^/src/
+)
+'''
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | __pycache__
+    | _build
+    | *.egg-info
+    | build
+    | dist
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
