@@ -3,6 +3,8 @@ This is the library and useful scripts of the Axolotl series in
 Python. The implementation of it aims at providing a handy all-in-one 
 package for writing useful applications.
 
+PyPi project: https://pypi.org/project/axolpy-lib
+
 ## Install axolpy-lib
 ```
 pip install axolpy-lib
