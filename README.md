@@ -1,4 +1,6 @@
 # axolpy-lib, the Axolotl Library in Python
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 This is the library and useful scripts of the Axolotl series in 
 Python. The implementation of it aims at providing a handy all-in-one 
 package for writing useful applications.
