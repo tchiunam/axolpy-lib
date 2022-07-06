@@ -1,4 +1,4 @@
-name: Python application
+name: Python
 
 on:
   push:
@@ -35,3 +35,7 @@ jobs:
       run: |
         export PYTHONPATH=./src
         pytest -v
+    - name: Build package
+      run: |
+        pip install build
+        python -m build
