@@ -1,4 +1,5 @@
 # axolpy-lib, the Axolotl Library in Python
+[![CodeQL](https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 This is the library and useful scripts of the Axolotl series in 
