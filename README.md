@@ -1,3 +1,5 @@
+<img src="images/axolpy-logo-transparent.svg" width="50%" />
+
 # axolpy-lib, the Axolotl Library in Python
 [![CodeQL](https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yml)
 [![Python](https://github.com/tchiunam/axolpy-lib/actions/workflows/python.yml/badge.svg)](https://github.com/tchiunam/axolpy-lib/actions/workflows/python.yml)
