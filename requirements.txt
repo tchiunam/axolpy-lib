@@ -7,6 +7,7 @@ py-solc-x
 # Testing
 pytest
 pytest-html
+coverage
 
 # Others
 atlassian-python-api
