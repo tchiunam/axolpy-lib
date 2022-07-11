@@ -20,9 +20,24 @@ pip install axolpy-lib
 ```
 
 ## Run test
-Run pytest
+To run pytest
 ```
 pytest
+```
+
+To run test with coverage result:
+```
+coverage run -m pytest
+```
+
+To generate test coverage report:
+```
+coverage report -m
+```
+
+To generate test coverage report in html:
+```
+coverage html
 ```
 
 ## Build axolpy-lib package
