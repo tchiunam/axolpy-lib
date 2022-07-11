@@ -1,5 +1,6 @@
 *.egg-info/
 .DS_Store
+.coverage
 .env
 .vscode/
 __pycache__
