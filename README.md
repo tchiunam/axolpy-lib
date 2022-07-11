@@ -2,6 +2,7 @@
 
 # axolpy-lib, the Axolotl Library in Python
 [![Python](https://github.com/tchiunam/axolpy-lib/actions/workflows/python.yml/badge.svg)](https://github.com/tchiunam/axolpy-lib/actions/workflows/python.yml)
+[![Version](https://img.shields.io/badge/Version-v0.0.2-yellow.svg)](https://github.com/tchiunam/axolpy-lib/releases/tag/v0.0.2)
 [![codecov](https://codecov.io/gh/tchiunam/axolpy-lib/branch/main/graph/badge.svg?token=JZTOZY5UXL)](https://codecov.io/gh/tchiunam/axolpy-lib)
 [![CodeQL](https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
