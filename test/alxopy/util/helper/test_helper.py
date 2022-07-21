@@ -1,7 +1,17 @@
 import re
+from pathlib import Path
 
 import pytest
 from axolpy.util import helper
+
+
+def test_is_text_file():
+    """
+    Test to check if a file is a text file.
+    """
+
+    with Path(__file__).parent.joinpath("testdata", "textfile.txt").open("rb") as f:
+        assert helper.is_text_file(f), "File is not a text file"
 
 
 def test_get_random_bits() -> None:
