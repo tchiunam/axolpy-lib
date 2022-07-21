@@ -1,7 +1,7 @@
 import errno
 import os
+import signal
 from functools import wraps
-from signal import signal
 
 
 def synchronous(tlockname: str):
