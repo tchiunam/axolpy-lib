@@ -1,15 +1,29 @@
 import pytest
-from axolpy.kubernetes import Deployment, Namespace, StatefulSet
+from axolpy.kubernetes import Cluster, Deployment, Namespace, StatefulSet
 
 
 class TestKubernetesModel(object):
+    def test_cluster(self):
+        cluster_name = "starwars"
+        cluster = Cluster(name=cluster_name)
+        pytest.test_kubernetes_model_cluster: Cluster = cluster
+
+        assert cluster.name == cluster_name
+
     def test_namespace(self):
+        cluster = pytest.test_kubernetes_model_cluster
         namespace_name = "general"
-        namespace = Namespace(name=namespace_name)
+        namespace = Namespace(name=namespace_name, cluster=cluster)
         pytest.test_kubernetes_model_namespace: Namespace = namespace
+
         assert namespace.name == namespace_name
+        assert namespace.cluster == cluster
         assert namespace.stateful_sets == {}
         assert namespace.deployments == {}
+
+        assert cluster.namespace(namespace_name) == namespace
+        assert str(cluster) == f"{cluster.__class__.__name__}" + \
+            f"(name: {cluster.name}, {len(cluster.namespaces)} namespaces)"
 
     def test_deployment(self):
         deployment_name = "authentication"
@@ -20,11 +34,12 @@ class TestKubernetesModel(object):
                        replicas=replicas,
                        foo="bar")
         d.add_property(name="priority", value=2)
-        assert d.namespace.name == pytest.test_kubernetes_model_namespace.name
 
         actual_deployment = pytest.test_kubernetes_model_namespace.deployment(
             deployment_name)
+
         assert actual_deployment.name == deployment_name
+        assert actual_deployment.namespace == pytest.test_kubernetes_model_namespace
         assert actual_deployment.replicas == replicas
         assert actual_deployment.property("foo") == "bar"
         assert actual_deployment.property("priority") == 2
@@ -41,12 +56,12 @@ class TestKubernetesModel(object):
                         replicas=replicas,
                         foo="bar")
         s.add_property(name="priority", value=2)
-        assert s.namespace.name == pytest.test_kubernetes_model_namespace.name
 
         actual_statefulset = pytest.test_kubernetes_model_namespace.stateful_set(
             statefulset_name)
 
         assert actual_statefulset.name == statefulset_name
+        assert actual_statefulset.namespace == pytest.test_kubernetes_model_namespace
         assert actual_statefulset.replicas == replicas
         assert actual_statefulset.property("foo") == "bar"
         assert actual_statefulset.property("priority") == 2
