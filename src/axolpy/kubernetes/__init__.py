@@ -3,41 +3,84 @@ from __future__ import annotations
 from typing import Any, Dict
 
 
-class Namespace(object):
+class Cluster(object):
     def __init__(self, name: str) -> None:
         """
-        A Namespace in kubernetest cluster.
+        A Cluster in kubernetes.
 
-        :param name: The name of StatefulSet.
+        :param name: The name of Cluster.
         :type name: str
         """
+
         self._name: str = name
-        self._stateful_sets: Dict[str, StatefulSet] = dict()
-        self._deployments: Dict[str, Deployment] = dict()
+        self._namespaces: Dict[str, Namespace] = dict()
 
     @property
     def name(self) -> str:
         return self._name
 
     @property
+    def namespaces(self) -> Dict[str, Namespace]:
+        return self._namespaces.copy()
+
+    def namespace(self, name: str) -> Namespace:
+        return self._namespaces[name]
+
+    def add_namespace(self, namespace: Namespace) -> None:
+        self._namespaces[namespace.name] = namespace
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}(name: {self._name}, {len(self._namespaces)} namespaces)"
+
+
+class Namespace(object):
+    def __init__(
+            self,
+            name: str,
+            cluster: Cluster) -> None:
+        """
+        A Namespace in kubernetes cluster.
+
+        :param name: The name of Namespace.
+        :type name: str
+        :param cluster: The cluster this Namespace is in.
+        :type cluster: :class:`Cluster`
+        """
+
+        self._name: str = name
+        self._cluster: Cluster = cluster
+        self._stateful_sets: Dict[str, StatefulSet] = dict()
+        self._deployments: Dict[str, Deployment] = dict()
+
+        cluster.add_namespace(namespace=self)
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def cluster(self):
+        return self._cluster
+
+    @property
     def stateful_sets(self) -> Dict[str, StatefulSet]:
         return self._stateful_sets.copy()
 
-    def add_stateful_set(self, stateful_set: StatefulSet) -> None:
-        self._stateful_sets[stateful_set.name] = stateful_set
-
     def stateful_set(self, name: str) -> StatefulSet:
         return self._stateful_sets[name]
+
+    def add_stateful_set(self, stateful_set: StatefulSet) -> None:
+        self._stateful_sets[stateful_set.name] = stateful_set
 
     @property
     def deployments(self) -> Dict[str, Deployment]:
         return self._deployments.copy()
 
-    def add_deployment(self, deployment: Deployment) -> None:
-        self._deployments[deployment.name] = deployment
-
     def deployment(self, name: str) -> Deployment:
         return self._deployments[name]
+
+    def add_deployment(self, deployment: Deployment) -> None:
+        self._deployments[deployment.name] = deployment
 
     def __str__(self) -> str:
         return f"{__class__.__name__}(name: {self._name}, {len(self._stateful_sets)} stateful_sets" + \
@@ -51,7 +94,7 @@ class StatefulSet(object):
                  replicas: int,
                  **kwargs) -> None:
         """
-        A StatefulSet in kubernetest cluster.
+        A StatefulSet in kubernetes cluster.
 
         :param name: The name of StatefulSet.
         :type name: str
@@ -70,7 +113,7 @@ class StatefulSet(object):
         for k, v in kwargs.items():
             self.add_property(name=k, value=v)
 
-        self._namespace.add_stateful_set(self)
+        self._namespace.add_stateful_set(stateful_set=self)
 
     @property
     def name(self) -> str:
@@ -102,7 +145,7 @@ class Deployment(object):
                  replicas: int,
                  **kwargs) -> None:
         """
-        A Deployment in kubernetest cluster.
+        A Deployment in kubernetes cluster.
 
         :param name: The name of Deployment.
         :type name: str
@@ -121,7 +164,7 @@ class Deployment(object):
         for k, v in kwargs.items():
             self.add_property(name=k, value=v)
 
-        self._namespace.add_deployment(self)
+        self._namespace.add_deployment(deployment=self)
 
     @property
     def name(self) -> str:
