@@ -1,0 +1,60 @@
+import pytest
+from axolpy.kubernetes import Deployment, Namespace, StatefulSet
+
+
+class TestKubernetesModel(object):
+    def test_namespace(self):
+        namespace_name = "general"
+        namespace = Namespace(name=namespace_name)
+        pytest.test_kubernetes_model_namespace: Namespace = namespace
+        assert namespace.name == namespace_name
+        assert namespace.stateful_sets == {}
+        assert namespace.deployments == {}
+
+    def test_deployment(self):
+        deployment_name = "authentication"
+        replicas = 4
+
+        d = Deployment(name=deployment_name,
+                       namespace=pytest.test_kubernetes_model_namespace,
+                       replicas=replicas,
+                       foo="bar")
+        d.add_property(name="priority", value=2)
+        assert d.namespace.name == pytest.test_kubernetes_model_namespace.name
+
+        actual_deployment = pytest.test_kubernetes_model_namespace.deployment(
+            deployment_name)
+        assert actual_deployment.name == deployment_name
+        assert actual_deployment.replicas == replicas
+        assert actual_deployment.property("foo") == "bar"
+        assert actual_deployment.property("priority") == 2
+        assert str(
+            actual_deployment) == f"{actual_deployment.__class__.__name__}" + \
+            f"(name: {deployment_name}, replicas: {replicas}, 2 properties)"
+
+    def test_statefulset(self):
+        statefulset_name = "profiler"
+        replicas = 10
+
+        s = StatefulSet(name=statefulset_name,
+                        namespace=pytest.test_kubernetes_model_namespace,
+                        replicas=replicas,
+                        foo="bar")
+        s.add_property(name="priority", value=2)
+        assert s.namespace.name == pytest.test_kubernetes_model_namespace.name
+
+        actual_statefulset = pytest.test_kubernetes_model_namespace.stateful_set(
+            statefulset_name)
+
+        assert actual_statefulset.name == statefulset_name
+        assert actual_statefulset.replicas == replicas
+        assert actual_statefulset.property("foo") == "bar"
+        assert actual_statefulset.property("priority") == 2
+        assert str(
+            actual_statefulset) == f"{actual_statefulset.__class__.__name__}" + \
+            f"(name: {statefulset_name}, replicas: {replicas}, 2 properties)"
+
+    def test_namespace_after_adding_resources(self):
+        assert str(
+            pytest.test_kubernetes_model_namespace) == f"{pytest.test_kubernetes_model_namespace.__class__.__name__}" + \
+            f"(name: {pytest.test_kubernetes_model_namespace.name}, 1 stateful_sets, 1 deployments)"
