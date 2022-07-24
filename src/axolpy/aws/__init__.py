@@ -40,3 +40,33 @@ class EKSDeployment(object):
     def __str__(self) -> str:
         return f"EKSDeployment(name: {self._name}, replicas: {self._replicas}, " + \
             f"{len(self._properties)} properties)"
+
+
+class EKSStatefulSet(object):
+    def __init__(self,
+                 name: str,
+                 replicas: int,
+                 **kwargs) -> None:
+        self._name: str = name
+        self._replicas: int = replicas
+        self._properties: dict = dict()
+        for k, v in kwargs.items():
+            self.add_property(name=k, value=v)
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def replicas(self) -> int:
+        return self._replicas
+
+    def add_property(self, name: str, value: Any) -> None:
+        self._properties[name] = value
+
+    def property(self, name) -> Any:
+        return self._properties.get(name, None)
+
+    def __str__(self) -> str:
+        return f"EKSStatefulSet(name: {self._name}, replicas: {self._replicas}, " + \
+            f"{len(self._properties)} properties)"
