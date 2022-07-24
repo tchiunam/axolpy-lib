@@ -53,6 +53,13 @@ def test_timeout() -> None:
 
         time.sleep(seconds)
 
+    # Run timeout_function with a timeout less than 1 second
+    try:
+        timeout_function(seconds=0.5)
+    except Exception as e:
+        assert False, f"Timeout function raised {e}"
+
+    # Run timeout_function with a timeout more than 1 second
     with pytest.raises(Exception) as e:
         timeout_function(seconds=2)
     assert e.type == TimeoutError, "Timeout exception not raised"
