@@ -1,5 +1,7 @@
 import pytest
-from axolpy.kubernetes import Cluster, Deployment, Namespace, StatefulSet
+from axolpy.aws import AWSRegion
+from axolpy.kubernetes import (AWSClusterRef, Cluster, Deployment, Namespace,
+                               StatefulSet)
 
 
 class TestKubernetesModel(object):
@@ -73,3 +75,13 @@ class TestKubernetesModel(object):
         assert str(
             pytest.test_kubernetes_model_namespace) == f"{pytest.test_kubernetes_model_namespace.__class__.__name__}" + \
             f"(name: {pytest.test_kubernetes_model_namespace.name}, 1 stateful_sets, 1 deployments)"
+
+
+def test_aws_cluster_ref():
+    aws_region = AWSRegion(name="us-east-1")
+    aws_cluster_ref = AWSClusterRef(region=aws_region)
+
+    cluster_name = "starwars"
+    cluster = Cluster(name=cluster_name, platform_ref=aws_cluster_ref)
+
+    assert cluster.platform_ref.region.name == aws_region.name
