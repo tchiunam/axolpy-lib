@@ -1,17 +1,17 @@
 from typing import Any
 
 
-class EKSDeployment(object):
+class Deployment(object):
     def __init__(self,
                  name: str,
                  replicas: int,
                  **kwargs) -> None:
         """
-        A deployment in the EKS cluster.
+        A Deployment in kubernetest cluster.
 
-        :param name: The name of the deployment.
+        :param name: The name of Deployment.
         :type name: str
-        :param replicas: The number of replicas of the deployment.
+        :param replicas: The number of replicas of Deployment.
         :type replicas: int
         """
 
@@ -38,15 +38,24 @@ class EKSDeployment(object):
         return self._properties.get(name, None)
 
     def __str__(self) -> str:
-        return f"EKSDeployment(name: {self._name}, replicas: {self._replicas}, " + \
+        return f"{__class__.__name__}(name: {self._name}, replicas: {self._replicas}, " + \
             f"{len(self._properties)} properties)"
 
 
-class EKSStatefulSet(object):
+class StatefulSet(object):
     def __init__(self,
                  name: str,
                  replicas: int,
                  **kwargs) -> None:
+        """
+        A StatefulSet in kubernetest cluster.
+
+        :param name: The name of StatefulSet.
+        :type name: str
+        :param replicas: The number of replicas of StatefulSet.
+        :type replicas: int
+        """
+
         self._name: str = name
         self._replicas: int = replicas
         self._properties: dict = dict()
@@ -68,5 +77,5 @@ class EKSStatefulSet(object):
         return self._properties.get(name, None)
 
     def __str__(self) -> str:
-        return f"EKSStatefulSet(name: {self._name}, replicas: {self._replicas}, " + \
+        return f"{__class__.__name__}(name: {self._name}, replicas: {self._replicas}, " + \
             f"{len(self._properties)} properties)"
