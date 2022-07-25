@@ -47,6 +47,9 @@ class Cluster(object):
         self._namespaces: Dict[str, Namespace] = dict()
         self._platform_ref: ClusterCloudPlatformRef = platform_ref
 
+        if isinstance(platform_ref, AWSClusterRef):
+            self._platform_ref.region.add_eks_cluster(cluster=self)
+
     @property
     def name(self) -> str:
         return self._name
@@ -88,14 +91,14 @@ class Namespace(object):
         self._stateful_sets: Dict[str, StatefulSet] = dict()
         self._deployments: Dict[str, Deployment] = dict()
 
-        cluster.add_namespace(namespace=self)
+        self._cluster.add_namespace(namespace=self)
 
     @property
     def name(self) -> str:
         return self._name
 
     @property
-    def cluster(self):
+    def cluster(self) -> Cluster:
         return self._cluster
 
     @property
