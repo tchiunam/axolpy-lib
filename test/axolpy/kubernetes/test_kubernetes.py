@@ -6,6 +6,10 @@ from axolpy.kubernetes import (AWSClusterRef, Cluster, Deployment, Namespace,
 
 class TestKubernetesModel(object):
     def test_cluster(self):
+        """
+        Test using Cluster.
+        """
+
         cluster_name = "starwars"
         cluster = Cluster(name=cluster_name)
         pytest.test_kubernetes_model_cluster: Cluster = cluster
@@ -13,6 +17,10 @@ class TestKubernetesModel(object):
         assert cluster.name == cluster_name
 
     def test_namespace(self):
+        """
+        Test using Namespace.
+        """
+
         cluster = pytest.test_kubernetes_model_cluster
         namespace_name = "general"
         namespace = Namespace(name=namespace_name, cluster=cluster)
@@ -28,6 +36,10 @@ class TestKubernetesModel(object):
             f"(name: {cluster.name}, {len(cluster.namespaces)} namespaces)"
 
     def test_deployment(self):
+        """
+        Test using Deployment.
+        """
+
         deployment_name = "authentication"
         replicas = 4
 
@@ -50,20 +62,25 @@ class TestKubernetesModel(object):
             f"(name: {deployment_name}, replicas: {replicas}, 2 properties)"
 
     def test_statefulset(self):
+        """
+        Test using StatefulSet.
+        """
+
         statefulset_name = "profiler"
         replicas = 10
 
+        namespace = pytest.test_kubernetes_model_namespace
         s = StatefulSet(name=statefulset_name,
-                        namespace=pytest.test_kubernetes_model_namespace,
+                        namespace=namespace,
                         replicas=replicas,
                         foo="bar")
         s.add_property(name="priority", value=2)
 
-        actual_statefulset = pytest.test_kubernetes_model_namespace.stateful_set(
+        actual_statefulset = namespace.stateful_set(
             statefulset_name)
 
         assert actual_statefulset.name == statefulset_name
-        assert actual_statefulset.namespace == pytest.test_kubernetes_model_namespace
+        assert actual_statefulset.namespace == namespace
         assert actual_statefulset.replicas == replicas
         assert actual_statefulset.property("foo") == "bar"
         assert actual_statefulset.property("priority") == 2
@@ -72,12 +89,21 @@ class TestKubernetesModel(object):
             f"(name: {statefulset_name}, replicas: {replicas}, 2 properties)"
 
     def test_namespace_after_adding_resources(self):
+        """
+        Test namespace after resources are added.
+        """
+
+        namespace = pytest.test_kubernetes_model_namespace
         assert str(
-            pytest.test_kubernetes_model_namespace) == f"{pytest.test_kubernetes_model_namespace.__class__.__name__}" + \
-            f"(name: {pytest.test_kubernetes_model_namespace.name}, 1 stateful_sets, 1 deployments)"
+            namespace) == f"{namespace.__class__.__name__}" + \
+            f"(name: {namespace.name}, 1 stateful_sets, 1 deployments)"
 
 
 def test_aws_cluster_ref():
+    """
+    Test using AWSClusterRef.
+    """
+
     aws_region = AWSRegion(name="us-east-1")
     aws_cluster_ref = AWSClusterRef(region=aws_region)
 
@@ -85,3 +111,4 @@ def test_aws_cluster_ref():
     cluster = Cluster(name=cluster_name, platform_ref=aws_cluster_ref)
 
     assert cluster.platform_ref.region.name == aws_region.name
+    assert cluster.platform_ref.region.eks_cluster(cluster_name) == cluster
