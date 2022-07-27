@@ -21,6 +21,7 @@ class AWSRegion(object):
         self._name: str = name
         self._eks_clusters: Dict[str, Cluster] = dict()
         self._ecs_clusters: Dict[str, ECSCluster] = dict()
+        self._rds_databases: Dict[str, RDSDatabase] = dict()
 
     @property
     def name(self) -> str:
@@ -60,9 +61,26 @@ class AWSRegion(object):
 
         self._ecs_clusters[cluster.name] = cluster
 
+    @property
+    def rds_databases(self) -> Dict[str, RDSDatabase]:
+        return self._rds_databases.copy()
+
+    def rds_database(self, id: str) -> RDSDatabase:
+        return self._rds_databases[id]
+
+    def add_rds_database(self, database: RDSDatabase) -> None:
+        """
+        Add a database to this region.
+
+        :param database: A RDS Database.
+        :type database: :class:`RDSDatabase`
+        """
+
+        self._rds_databases[database.id] = database
+
     def __str__(self) -> str:
         return f"{__class__.__name__}(name: {self._name}, {len(self._eks_clusters)} EKS clusters" + \
-            f", {len(self._ecs_clusters)} ECS clusters)"
+            f", {len(self._ecs_clusters)} ECS clusters, {len(self._rds_databases)} RDS Databases)"
 
 
 class ECSCluster(object):
@@ -154,3 +172,120 @@ class ECSService(object):
     def __str__(self) -> str:
         return f"{__class__.__name__}(name: {self._name}, desired_count: {self._desired_count}" + \
             f", {len(self._properties)} properties)"
+
+
+class RDSDatabase(object):
+    """
+    A database Amazon Relational Databases Service.
+    """
+
+    def __init__(self,
+                 id: str,
+                 region: AWSRegion,
+                 type: str,
+                 host: str,
+                 port: int,
+                 engine_type: str,
+                 engine_version: str,
+                 class_type: str,
+                 dbname: str = None) -> None:
+        """
+        Initialize a RDS Database.
+
+        :param id: RDS database identifier.
+        :type id: str
+        :param region: AWS Region that this RDS database is in.
+        :type region: :class:`AWSRegion`
+        :param type: Type of RDS database. Choices: 'instance' or 'cluster'.
+        :type type: str
+        :param host: RDS database hostname.
+        :type host: str
+        :param port: RDS database port.
+        :type port: int
+        :param engine_type: Engine Type. Choice: 'postgresql' or 'mysql'.
+        :type engine_type: str
+        :param engine_version: Engine Version.
+        :type engine_version: str
+        :param class_type: Class Type.
+        :type class_type: str
+        :param dbname: Database name in the engine. Default is id.
+        :type dbname: str
+        """
+
+        assert type in ["instance",
+                        "cluster"], "type must be instance or cluster"
+        assert engine_type in ["postgresql",
+                               "mysql"], "engine_type must be postgresql or mysql"
+        self._id: str = id
+        self._region: AWSRegion = region
+        self._type: str = type
+        self._host: str = host
+        self._port: str = port
+        self._engine_type: str = engine_type
+        self._engine_version: str = engine_version
+        self._class_type: str = class_type
+        self._dbname: str = dbname if dbname else id
+
+        self._region.add_rds_database(database=self)
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    @property
+    def region(self):
+        return self._region
+
+    @property
+    def type(self) -> str:
+        return self._type
+
+    @property
+    def host(self) -> str:
+        return self._host
+
+    @property
+    def port(self) -> str:
+        return self._port
+
+    @property
+    def engine_type(self) -> str:
+        return self._engine_type
+
+    @property
+    def engine_version(self) -> str:
+        return self._engine_version
+
+    @property
+    def class_type(self) -> str:
+        return self._class_type
+
+    @property
+    def dbname(self) -> str:
+        return self._dbname
+
+    def is_postgresql(self) -> bool:
+        """
+        Check if this RDS database is PostgreSQL.
+
+        :return: True if this RDS database is PostgreSQL.
+        :rtype: bool
+        """
+
+        return self._engine_type == "postgresql"
+
+    def is_mysql(self) -> bool:
+        """
+        Check if this RDS database is MySQL.
+
+        :return: True if this RDS database is MySQL.
+        :rtype: bool
+        """
+
+        return self._engine_type == "mysql"
+
+    def __str__(self) -> str:
+        return f"RDSDatabase(id: {self._id}, type: {self._type}" + \
+            f", host: {self._host}, port: {self._port}" + \
+            f", engine_type: {self._engine_type}, engine_version: {self._engine_version}" + \
+            f", class_type: {self._class_type}, dbname: {self._dbname})"

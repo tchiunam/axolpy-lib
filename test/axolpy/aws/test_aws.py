@@ -1,5 +1,5 @@
 import pytest
-from axolpy.aws import AWSRegion, ECSCluster, ECSService
+from axolpy.aws import AWSRegion, ECSCluster, ECSService, RDSDatabase
 
 
 class TestAWSRegionModel(object):
@@ -18,7 +18,8 @@ class TestAWSRegionModel(object):
         assert region.ecs_clusters == {}
 
         assert str(
-            region) == f"{region.__class__.__name__}(name: {region_name}, 0 EKS clusters, 0 ECS clusters)"
+            region) == f"{region.__class__.__name__}(name: {region_name}" + \
+            f", 0 EKS clusters, 0 ECS clusters, 0 RDS Databases)"
 
     def test_ecs_cluster(self):
         """
@@ -40,7 +41,8 @@ class TestAWSRegionModel(object):
         assert str(
             actual_cluster) == f"{actual_cluster.__class__.__name__}(name: {cluster_name}, 0 services)"
         assert str(
-            region) == f"{region.__class__.__name__}(name: {region.name}, 0 EKS clusters, 1 ECS clusters)"
+            region) == f"{region.__class__.__name__}(name: {region.name}" + \
+            f", 0 EKS clusters, 1 ECS clusters, 0 RDS Databases)"
 
     def test_ecs_service(self):
         """
@@ -70,3 +72,48 @@ class TestAWSRegionModel(object):
             actual_service) == f"{service.__class__.__name__}(name: {service_name}, desired_count: {desired_count}, 2 properties)"
         assert str(
             cluster) == f"{cluster.__class__.__name__}(name: {cluster.name}, 1 services)"
+
+
+def test_rds_database():
+    """
+    Test using RDSDatabase.
+    """
+
+    region_name = "us-east-1"
+    id = "test-rds"
+    db_type = "instance"
+    host = "test-host.amazonaws.com"
+    port = 5432
+    engine_type = "postgresql"
+    engine_version = "9.6.3"
+    class_type = "db.t2.micro"
+    dbname = "test-db"
+
+    region = AWSRegion(name=region_name)
+    db = RDSDatabase(id=id,
+                     region=region,
+                     type=db_type,
+                     host=host,
+                     port=port,
+                     engine_type=engine_type,
+                     engine_version=engine_version,
+                     class_type=class_type,
+                     dbname=dbname)
+
+    assert db.id == id
+    assert db.region.name == region_name
+    assert db.type == db_type
+    assert db.host == host
+    assert db.port == port
+    assert db.engine_type == engine_type
+    assert db.engine_version == engine_version
+    assert db.class_type == class_type
+    assert db.dbname == dbname
+    assert db.is_postgresql() is True
+    assert db.is_mysql() is False
+    assert str(db) == f"{db.__class__.__name__}(id: {id}, type: {db_type}" + \
+        f", host: {host}, port: {port}, engine_type: {engine_type}" + \
+        f", engine_version: {engine_version}, class_type: {class_type}, dbname: {dbname})"
+
+    assert len(region.rds_databases) == 1
+    assert region.rds_database(id=id) == db
