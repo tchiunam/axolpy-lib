@@ -1,7 +1,7 @@
 import pytest
 from axolpy.aws import AWSRegion
-from axolpy.kubernetes import (AWSClusterRef, Cluster, Deployment, Namespace,
-                               StatefulSet)
+from axolpy.kubernetes import (AWSClusterRef, Cluster, Deployment,
+                               DeploymentPatch, Namespace, StatefulSet)
 
 
 class TestKubernetesModel(object):
@@ -112,3 +112,26 @@ def test_aws_cluster_ref():
 
     assert cluster.platform_ref.region.name == aws_region.name
     assert cluster.platform_ref.region.eks_cluster(cluster_name) == cluster
+
+
+def test_deployment_patch_model():
+    """
+    Test deployment patch model.
+    """
+
+    patch_replicas = 4
+
+    patch = DeploymentPatch(replicas=patch_replicas)
+
+    assert patch.replicas == patch_replicas
+    assert str(patch) == f"{patch.__class__.__name__}" + \
+        f"(replicas: {patch_replicas})"
+
+    d = Deployment(name="test-deployment",
+                   namespace=Namespace(name="test-namespace",
+                                       cluster=Cluster(name="test-cluster")),
+                   replicas=1)
+
+    d.patch = patch
+
+    assert d.patch.replicas == patch_replicas
