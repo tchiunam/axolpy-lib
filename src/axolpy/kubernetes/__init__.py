@@ -126,11 +126,29 @@ class Namespace(object):
             f", {len(self._deployments)} deployments)"
 
 
-class StatefulSet(object):
+class AbstractStatefulSetPatchable(ABC):
+    def __init__(self, replicas: int) -> None:
+        self._replicas: int = replicas
+
+    @property
+    def replicas(self) -> int:
+        return self._replicas
+
+
+class StatefulSetPatch(AbstractStatefulSetPatchable):
+    def __init__(self, replicas: int) -> None:
+        super().__init__(replicas=replicas)
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}(replicas: {self._replicas})"
+
+
+class StatefulSet(AbstractStatefulSetPatchable):
     def __init__(self,
                  name: str,
                  namespace: Namespace,
                  replicas: int,
+                 patch: StatefulSetPatch = None,
                  **kwargs) -> None:
         """
         A StatefulSet in kubernetes cluster.
@@ -141,11 +159,15 @@ class StatefulSet(object):
         :type namespace: :class:`Namespace`
         :param replicas: The number of replicas of StatefulSet.
         :type replicas: int
+        :param patch: The patch of StatefulSet.
+        :type patch: :class:`StatefulSetPatch`
         """
+
+        super().__init__(replicas=replicas)
 
         self._name: str = name
         self._namespace: Namespace = namespace
-        self._replicas: int = replicas
+        self._patch: StatefulSetPatch = patch
         # Properties is used to store the properties of this StatefulSet
         # which are not the standard attributes of k8s.
         self._properties: dict = dict()
@@ -163,8 +185,12 @@ class StatefulSet(object):
         return self._namespace
 
     @property
-    def replicas(self) -> int:
-        return self._replicas
+    def patch(self) -> StatefulSetPatch:
+        return self._patch
+
+    @patch.setter
+    def patch(self, patch: StatefulSetPatch) -> None:
+        self._patch = patch
 
     def add_property(self, name: str, value: Any) -> None:
         self._properties[name] = value
@@ -177,11 +203,29 @@ class StatefulSet(object):
             f", {len(self._properties)} properties)"
 
 
-class Deployment(object):
+class AbstractDeploymentPatchable(ABC):
+    def __init__(self, replicas: int) -> None:
+        self._replicas: int = replicas
+
+    @property
+    def replicas(self) -> int:
+        return self._replicas
+
+
+class DeploymentPatch(AbstractDeploymentPatchable):
+    def __init__(self, replicas: int) -> None:
+        super().__init__(replicas=replicas)
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}(replicas: {self._replicas})"
+
+
+class Deployment(AbstractDeploymentPatchable):
     def __init__(self,
                  name: str,
                  namespace: Namespace,
                  replicas: int,
+                 patch: DeploymentPatch = None,
                  **kwargs) -> None:
         """
         A Deployment in kubernetes cluster.
@@ -192,11 +236,15 @@ class Deployment(object):
         :type namespace: :class:`Namespace`
         :param replicas: The number of replicas of Deployment.
         :type replicas: int
+        :param patch: The patch of Deployment.
+        :type patch: :class:`DeploymentPatch`
         """
+
+        super().__init__(replicas=replicas)
 
         self._name: str = name
         self._namespace: Namespace = namespace
-        self._replicas: int = replicas
+        self._patch: DeploymentPatch = patch
         # Properties is used to store the properties of this Deployment
         # which are not the standard attributes of k8s.
         self._properties: dict = dict()
@@ -214,8 +262,12 @@ class Deployment(object):
         return self._namespace
 
     @property
-    def replicas(self) -> int:
-        return self._replicas
+    def patch(self) -> DeploymentPatch:
+        return self._patch
+
+    @patch.setter
+    def patch(self, patch: DeploymentPatch) -> None:
+        self._patch = patch
 
     def add_property(self, name: str, value: Any) -> None:
         self._properties[name] = value
