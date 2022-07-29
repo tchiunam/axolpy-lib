@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC
 from typing import Any, Dict
 
 from axolpy.kubernetes import Cluster
@@ -174,7 +175,39 @@ class ECSService(object):
             f", {len(self._properties)} properties)"
 
 
-class RDSDatabase(object):
+class AbstractRDSDatabasePatchable(ABC):
+    def __init__(
+            self,
+            engine_version: str,
+            class_type: str) -> None:
+        self._engine_version: str = engine_version
+        self._class_type: str = class_type
+
+    @property
+    def engine_version(self) -> str:
+        return self._engine_version
+
+    @property
+    def class_type(self) -> str:
+        return self._class_type
+
+
+class RDSDatabasePatch(AbstractRDSDatabasePatchable):
+    def __init__(
+            self,
+            engine_version: str,
+            class_type: str) -> None:
+        super().__init__(
+            engine_version=engine_version,
+            class_type=class_type)
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}" + \
+            f"(engine_version: {self._engine_version}" + \
+            f", class_type: {self._class_type})"
+
+
+class RDSDatabase(AbstractRDSDatabasePatchable):
     """
     A database Amazon Relational Databases Service.
     """
@@ -216,14 +249,15 @@ class RDSDatabase(object):
                         "cluster"], "type must be instance or cluster"
         assert engine_type in ["postgresql",
                                "mysql"], "engine_type must be postgresql or mysql"
+
+        super().__init__(engine_version=engine_version, class_type=class_type)
+
         self._id: str = id
         self._region: AWSRegion = region
         self._type: str = type
         self._host: str = host
         self._port: str = port
         self._engine_type: str = engine_type
-        self._engine_version: str = engine_version
-        self._class_type: str = class_type
         self._dbname: str = dbname if dbname else id
 
         self._region.add_rds_database(database=self)
@@ -253,16 +287,16 @@ class RDSDatabase(object):
         return self._engine_type
 
     @property
-    def engine_version(self) -> str:
-        return self._engine_version
-
-    @property
-    def class_type(self) -> str:
-        return self._class_type
-
-    @property
     def dbname(self) -> str:
         return self._dbname
+
+    @property
+    def patch(self) -> RDSDatabasePatch:
+        return self._patch
+
+    @patch.setter
+    def patch(self, patch: RDSDatabasePatch) -> None:
+        self._patch = patch
 
     def is_postgresql(self) -> bool:
         """
