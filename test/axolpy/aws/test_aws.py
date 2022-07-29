@@ -1,6 +1,6 @@
 import pytest
-from axolpy.aws import (AWSRegion, ECSCluster, ECSService, RDSDatabase,
-                        RDSDatabasePatch)
+from axolpy.aws import (AWSRegion, ECSCluster, ECSService, ECSServicePatch,
+                        RDSDatabase, RDSDatabasePatch)
 
 
 class TestAWSRegionModel(object):
@@ -73,6 +73,29 @@ class TestAWSRegionModel(object):
             actual_service) == f"{service.__class__.__name__}(name: {service_name}, desired_count: {desired_count}, 2 properties)"
         assert str(
             cluster) == f"{cluster.__class__.__name__}(name: {cluster.name}, 1 services)"
+
+
+def test_ecs_service_patch_model():
+    """
+    Test ecs service patch model.
+    """
+
+    patch_desired_count = 5
+
+    patch = ECSServicePatch(desired_count=patch_desired_count)
+
+    assert patch.desired_count == patch_desired_count
+    assert str(patch) == f"{patch.__class__.__name__}" + \
+        f"(desired_count: {patch_desired_count})"
+
+    s = ECSService(name="test-service",
+                   cluster=ECSCluster(name="test-cluster",
+                                      region=AWSRegion(name="us-east-1")),
+                   desired_count=1)
+
+    s.patch = patch
+
+    assert s.patch.desired_count == patch_desired_count
 
 
 def test_rds_database():

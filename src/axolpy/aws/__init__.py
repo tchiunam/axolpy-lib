@@ -126,24 +126,45 @@ class ECSCluster(object):
         return f"{__class__.__name__}(name: {self._name}, {len(self._services)} services)"
 
 
-class ECSService(object):
+class AbstractECSServicePatchable(ABC):
+    def __init__(self, desired_count: int) -> None:
+        self._desired_count: str = desired_count
+
+    @property
+    def desired_count(self) -> str:
+        return self._desired_count
+
+
+class ECSServicePatch(AbstractECSServicePatchable):
+    def __init__(self, desired_count: str) -> None:
+        super().__init__(desired_count=desired_count)
+
+    def __str__(self) -> str:
+        return f"{__class__.__name__}(desired_count: {self._desired_count})"
+
+
+class ECSService(AbstractECSServicePatchable):
     def __init__(self,
                  name: str,
                  cluster: ECSCluster,
                  desired_count: int = 0,
+                 patch: ECSServicePatch = None,
                  **kwargs) -> None:
         """
         A ECS Service in ECS cluster.
 
-        : param name: The name of ECS Service.
-        : type name: str
-        : param cluster: The cluster this ECS Service is in.
-        : type cluster: : class: `ECSCluster`
+        :param name: The name of ECS Service.
+        :type name: str
+        :param cluster: The cluster this ECS Service is in.
+        :type cluster: :class: `ECSCluster`
+        :param patch: The patch of ECS Service.
+        :type patch: :class:`ECSServicePatch`
         """
 
         self._name: str = name
         self._cluster: Cluster = cluster
         self._desired_count: int = desired_count
+        self._patch: ECSServicePatch = patch
         # Properties is used to store the properties of this ECS Service
         # which are not the standard attributes of it.
         self._properties: dict = dict()
@@ -161,8 +182,12 @@ class ECSService(object):
         return self._cluster
 
     @property
-    def desired_count(self) -> int:
-        return self._desired_count
+    def patch(self) -> ECSServicePatch:
+        return self._patch
+
+    @patch.setter
+    def patch(self, patch: ECSServicePatch) -> None:
+        self._patch = patch
 
     def add_property(self, name: str, value: Any) -> None:
         self._properties[name] = value
@@ -221,7 +246,8 @@ class RDSDatabase(AbstractRDSDatabasePatchable):
                  engine_type: str,
                  engine_version: str,
                  class_type: str,
-                 dbname: str = None) -> None:
+                 dbname: str = None,
+                 patch: RDSDatabasePatch = None) -> None:
         """
         Initialize a RDS Database.
 
@@ -243,6 +269,8 @@ class RDSDatabase(AbstractRDSDatabasePatchable):
         :type class_type: str
         :param dbname: Database name in the engine. Default is id.
         :type dbname: str
+        :param patch: The patch of RDS Database.
+        :type patch: :class:`RDSDatabasePatch`
         """
 
         assert type in ["instance",
@@ -259,6 +287,7 @@ class RDSDatabase(AbstractRDSDatabasePatchable):
         self._port: str = port
         self._engine_type: str = engine_type
         self._dbname: str = dbname if dbname else id
+        self._patch: RDSDatabasePatch = patch
 
         self._region.add_rds_database(database=self)
 
