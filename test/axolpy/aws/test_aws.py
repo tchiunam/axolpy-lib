@@ -1,5 +1,6 @@
 import pytest
-from axolpy.aws import AWSRegion, ECSCluster, ECSService, RDSDatabase
+from axolpy.aws import (AWSRegion, ECSCluster, ECSService, RDSDatabase,
+                        RDSDatabasePatch)
 
 
 class TestAWSRegionModel(object):
@@ -117,3 +118,36 @@ def test_rds_database():
 
     assert len(region.rds_databases) == 1
     assert region.rds_database(id=id) == db
+
+
+def test_rds_database_patch_model():
+    """
+    Test rds_database patch model.
+    """
+
+    patch_engine_version = "9.6.3"
+    patch_class_type = "db.t2.micro"
+
+    patch = RDSDatabasePatch(
+        engine_version=patch_engine_version,
+        class_type=patch_class_type)
+
+    assert patch.engine_version == patch_engine_version
+    assert patch.class_type == patch_class_type
+    assert str(patch) == f"{patch.__class__.__name__}" + \
+        f"(engine_version: {patch_engine_version}, class_type: {patch_class_type})"
+
+    db = RDSDatabase(id="test-rds",
+                     region=AWSRegion(name="us-east-1"),
+                     type="instance",
+                     host="test-host.amazonaws.com",
+                     port=5432,
+                     engine_type="postgresql",
+                     engine_version="9.6.3",
+                     class_type="db.t2.micro",
+                     dbname="test-db")
+
+    db.patch = patch
+
+    assert db.patch.engine_version == patch_engine_version
+    assert db.patch.class_type == patch_class_type
