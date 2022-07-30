@@ -16,6 +16,7 @@
   <img alt="Python Version" src="https://img.shields.io/pypi/pyversions/axolpy-lib" />
   <img alt="Pypi Format" src="https://img.shields.io/pypi/format/axolpy-lib" />
   <img alt="Language" src="https://img.shields.io/github/languages/count/tchiunam/axolpy-lib" />
+  <img alt="Lines of Code" src="https://img.shields.io/tokei/lines/github/tchiunam/axolpy-lib" />
   <img alt="File Count" src="https://img.shields.io/github/directory-file-count/tchiunam/axolpy-lib" />
   <img alt="Repository Size" src="https://img.shields.io/github/repo-size/tchiunam/axolpy-lib.svg?label=Repo%20size" />
 </div>
