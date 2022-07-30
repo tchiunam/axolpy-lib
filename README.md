@@ -112,7 +112,7 @@ You will see output like this:
 * Getting dependencies for sdist...
 ...
 ...
-Successfully built axolpy-lib-0.0.1.tar.gz and axolpy_lib-0.0.1-py3-none-any.whl
+Successfully built axolpy-lib-1.0.0.tar.gz and axolpy_lib-1.0.0-py3-none-any.whl
 ```
 
 ## Test report
@@ -121,7 +121,7 @@ Successfully built axolpy-lib-0.0.1.tar.gz and axolpy_lib-0.0.1-py3-none-any.whl
 
 ---
 #### See more  
-1. [axolpy-cli](https://github.com/tchiunam/axolpy-cli) for using Axolpy in command line
+1. [axolpy-script](https://github.com/tchiunam/axolpy-script) for using Axolpy scripts
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B32310%2Fgithub.com%2Ftchiunam%2Faxolpy-lib.svg?type=large)](https://app.fossa.com/projects/custom%2B32310%2Fgithub.com%2Ftchiunam%2Faxolpy-lib?ref=badge_large)
