@@ -1,9 +1,12 @@
 import logging
-from typing import Any
+from pathlib import Path
+
+import yaml
+from axolpy.configuration import AxolpyConfigManager
 
 __all__ = ["CRITICAL", "FATAL", "ERROR",
            "WARNING", "WARN", "INFO", "DEBUG", "NOTSET",
-           "show_milliseconds", "get_logger", "set_level"]
+           "get_logger", "set_level"]
 
 CRITICAL = logging.CRITICAL
 FATAL = logging.FATAL
@@ -15,16 +18,37 @@ DEBUG = logging.DEBUG
 NOTSET = logging.NOTSET
 
 
-def show_milliseconds() -> None:
+def load_config() -> None:
     """
-    Show milliseconds in log.
+    Load the logging configuration.
     """
 
-    import coloredlogs
-    coloredlogs.install(milliseconds=True)
+    logging_config_file = Path(
+        AxolpyConfigManager.get_config_path(), "logging.yaml")
+    if logging_config_file.exists():
+        logging.config.dictConfig(yaml.load(logging_config_file))
+    else:
+        raise FileNotFoundError(
+            "Logging configuration file 'logging.yaml' not found $AXOLPY_PATH/conf")
 
 
-def get_logger(name: str = None) -> logging.Logger:
+class AxolpyLogger(logging.Logger):
+    """
+    An Axolpy logger class.
+    """
+
+    def __init__(self, name: str = None) -> None:
+        """
+        Initialize the logger.
+
+        :param name: Name of the logger.
+        :type name: str
+        """
+
+        super().__init__(name)
+
+
+def get_logger(name: str = None) -> AxolpyLogger:
     """
     Return a logger with the specified *name*.
 
@@ -32,31 +56,7 @@ def get_logger(name: str = None) -> logging.Logger:
     :type name: str
 
     :return: A logger class.
-    :rtype: :class:`logging.Logger`
+    :rtype: :class:`AxolpyLogger`
     """
 
-    return logging.getLogger(name)
-
-
-def set_level(level: int = INFO) -> None:
-    """
-    Set the logging level.
-
-    :param level: Logging level to be set to.
-    :type level: int
-    """
-
-    import coloredlogs
-    coloredlogs.install(level=level)
-
-
-def get_level() -> Any | int:
-    """
-    Get the current logging level.
-
-    :return: The current logging level.
-    :rtype: int
-    """
-
-    import coloredlogs
-    return coloredlogs.get_level()
+    return AxolpyLogger(name=name)

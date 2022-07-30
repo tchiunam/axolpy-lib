@@ -1,15 +1,13 @@
 from axolpy import logging
 
 
-def test_show_milliseconds() -> None:
+def test_load_config() -> None:
     """
-    Test to enable logger to show milliseconds.
+    Test if logging configuration can be loaded.
     """
 
-    try:
-        logging.show_milliseconds()
-    except Exception as exc:
-        assert False, f"show_milliseconds raised an exception {exc}"
+    logging.load_config()
+    assert logging.get_level() == logging.DEBUG
 
 
 def test_get_logger() -> None:

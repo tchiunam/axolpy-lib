@@ -23,7 +23,7 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
-    "coloredlogs",
+    "pyyaml",
 ]
 
 [project.optional-dependencies]
