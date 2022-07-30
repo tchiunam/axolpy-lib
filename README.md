@@ -16,6 +16,7 @@
   <img alt="Python Version" src="https://img.shields.io/pypi/pyversions/axolpy-lib" />
   <img alt="Pypi Format" src="https://img.shields.io/pypi/format/axolpy-lib" />
   <img alt="Language" src="https://img.shields.io/github/languages/count/tchiunam/axolpy-lib" />
+  <img alt="Lines of Code" src="https://img.shields.io/tokei/lines/github/tchiunam/axolpy-lib" />
   <img alt="File Count" src="https://img.shields.io/github/directory-file-count/tchiunam/axolpy-lib" />
   <img alt="Repository Size" src="https://img.shields.io/github/repo-size/tchiunam/axolpy-lib.svg?label=Repo%20size" />
 </div>
@@ -111,7 +112,7 @@ You will see output like this:
 * Getting dependencies for sdist...
 ...
 ...
-Successfully built axolpy-lib-0.0.1.tar.gz and axolpy_lib-0.0.1-py3-none-any.whl
+Successfully built axolpy-lib-1.0.0.tar.gz and axolpy_lib-1.0.0-py3-none-any.whl
 ```
 
 ## Test report
@@ -120,7 +121,7 @@ Successfully built axolpy-lib-0.0.1.tar.gz and axolpy_lib-0.0.1-py3-none-any.whl
 
 ---
 #### See more  
-1. [axolpy-cli](https://github.com/tchiunam/axolpy-cli) for using Axolpy in command line
+1. [axolpy-script](https://github.com/tchiunam/axolpy-script) for using Axolpy scripts
 
 ## License
 [![FOSSA Status](https://app.fossa.com/api/projects/custom%2B32310%2Fgithub.com%2Ftchiunam%2Faxolpy-lib.svg?type=large)](https://app.fossa.com/projects/custom%2B32310%2Fgithub.com%2Ftchiunam%2Faxolpy-lib?ref=badge_large)
