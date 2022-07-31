@@ -1,15 +1,20 @@
+import pytest
 from axolpy import logging
 
 
-def test_show_milliseconds() -> None:
+def test_load_config() -> None:
     """
-    Test to enable logger to show milliseconds.
+    Test if logging configuration can be loaded.
     """
 
-    try:
-        logging.show_milliseconds()
-    except Exception as exc:
-        assert False, f"show_milliseconds raised an exception {exc}"
+    logging.load_config()
+
+    assert logging.get_logger(
+        name="console").level == logging.INFO, "Logger level is incorrect"
+
+    # Test with non-existing configuration file
+    with pytest.raises(FileNotFoundError):
+        logging.load_config(filename="nosuchfile.txt")
 
 
 def test_get_logger() -> None:
@@ -17,24 +22,12 @@ def test_get_logger() -> None:
     Test to get a logger.
     """
 
-    logger = logging.get_logger(name="TestLogger")
+    logger = logging.get_logger(name="Test Logger")
     assert logger is not None, "Logger obtained is None"
-    assert logger.name == "TestLogger", "Name of the logger obtained is incorrect"
+    assert logger.name == "Test-Logger", "Name of the logger obtained is incorrect"
+    assert logger.level == logging.INFO, "Level of the logger obtained is incorrect"
 
-
-def test_set_level() -> None:
-    """
-    Test if logging level can be configured.
-    """
-
-    logger = logging.get_logger(name="TestLogger")
-    for level in [logging.logging.CRITICAL,
-                  logging.FATAL,
-                  logging.ERROR,
-                  logging.WARNING,
-                  logging.WARN,
-                  logging.INFO,
-                  logging.DEBUG,
-                  logging.NOTSET]:
-        logging.set_level(level=level)
-        assert logging.get_level() == level
+    logger = logging.get_logger(level=logging.DEBUG)
+    assert logger is not None, "Logger obtained is None"
+    assert logger.name == "console", "Name of the logger obtained is incorrect"
+    assert logger.level == logging.DEBUG, "Level of the logger obtained is incorrect"
