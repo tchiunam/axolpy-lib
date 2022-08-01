@@ -1,6 +1,3 @@
-# Logging
-coloredlogs
-
 # Solidity
 py-solc-x
 
@@ -11,3 +8,4 @@ coverage
 
 # Others
 atlassian-python-api
+pyyaml

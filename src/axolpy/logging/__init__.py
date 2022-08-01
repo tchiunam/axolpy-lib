@@ -1,9 +1,14 @@
 import logging
-from typing import Any
+import logging.config
+import sys
+from pathlib import Path
+
+import yaml
+from axolpy.configuration import AxolpyConfigManager
 
 __all__ = ["CRITICAL", "FATAL", "ERROR",
            "WARNING", "WARN", "INFO", "DEBUG", "NOTSET",
-           "show_milliseconds", "get_logger", "set_level"]
+           "load_config", "get_logger"]
 
 CRITICAL = logging.CRITICAL
 FATAL = logging.FATAL
@@ -15,48 +20,62 @@ DEBUG = logging.DEBUG
 NOTSET = logging.NOTSET
 
 
-def show_milliseconds() -> None:
+def load_config(filename: str = "logging.yaml") -> None:
     """
-    Show milliseconds in log.
+    Load the logging configuration.
+
+    :param filename: Name of the configuration file. Default is "logging.yaml".
+    :type filename: str
     """
 
-    import coloredlogs
-    coloredlogs.install(milliseconds=True)
+    logging_config_file = Path(
+        AxolpyConfigManager.get_config_path(), filename)
+    if logging_config_file.exists():
+        config = yaml.load(logging_config_file.read_text(),
+                           Loader=yaml.FullLoader)
+        logging.config.dictConfig(config=config)
+    else:
+        raise FileNotFoundError(
+            "Logging configuration file 'logging.yaml' not found $AXOLPY_PATH/conf")
 
 
-def get_logger(name: str = None) -> logging.Logger:
+def get_logger(name: str = None, level: int = None) -> logging.Logger:
     """
-    Return a logger with the specified *name*.
+    Return a logger with the specified *name*. A new logger will
+    be it doesn't exist. Root logger is returned if *name* is None.
 
     :param name: Name of the logger.
     :type name: str
+    :param level: Level of the logger.
+    :type level: int
 
     :return: A logger class.
     :rtype: :class:`logging.Logger`
     """
 
-    return logging.getLogger(name)
+    default_level = None
+    default_name = "root"
+    try:
+        config = AxolpyConfigManager.get_context()
+        if "logging" in config:
+            if "logger.default.level" in config["logging"]:
+                default_level = getattr(
+                    sys.modules[__name__],
+                    config["logging"]["logger.default.level"], None)
+            if "logger.default.name" in config["logging"]:
+                default_name = config["logging"]["logger.default.name"]
+    except FileNotFoundError:
+        # Do nothing if config of default context is not set
+        pass
 
-
-def set_level(level: int = INFO) -> None:
-    """
-    Set the logging level.
-
-    :param level: Logging level to be set to.
-    :type level: int
-    """
-
-    import coloredlogs
-    coloredlogs.install(level=level)
-
-
-def get_level() -> Any | int:
-    """
-    Get the current logging level.
-
-    :return: The current logging level.
-    :rtype: int
-    """
-
-    import coloredlogs
-    return coloredlogs.get_level()
+    if name is None:
+        name = default_name
+    # Replace spaces with hyphens in the name
+    # so that parsing of log is easier
+    logger = logging.getLogger(name=name.replace(" ", "-"))
+    if level is None:
+        if default_level is not None:
+            logger.setLevel(default_level)
+    else:
+        logger.setLevel(level)
+    return logger
