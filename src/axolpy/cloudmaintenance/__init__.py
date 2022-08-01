@@ -1,3 +1,6 @@
+from abc import ABC, abstractmethod
+from io import TextIOWrapper
+from pathlib import Path
 from typing import Iterable, List
 
 from ..aws import ECSService, RDSDatabase
@@ -55,3 +58,65 @@ class Operator(object):
 
     def add_rds_databases(self, database: RDSDatabase) -> None:
         self._rds_databases.append(database)
+
+
+class CloudMaintenanceStep(ABC):
+    """"
+    An abstract class for a cloud maintenance step.
+    """
+
+    _file_step_name: str = NotImplemented
+    _file_step_name_suffix: str = None
+    _file_extension: str = NotImplemented
+
+    _cmd: str = NotImplemented
+
+    _content_header: List[str] = NotImplemented
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        """
+        Initialize a cloud maintenance step.
+
+        :param step_no: The step number.
+        :type step_no: int
+        :param operator: The operator.
+        :type operator: :class:`Operator`
+        :param dist_path: The path to the distribution directory.
+        :type dist_path: Path
+        """
+
+        self._step_no: str = step_no
+        self._operator: Operator = operator
+        self._dist_path: Path = dist_path
+
+    def filename(self) -> str:
+        return "{operator}-{step_no}-{file_step_name}{file_step_name_suffix}.{file_extenstion}".format(
+            operator=self._operator.id,
+            step_no=self._step_no,
+            file_step_name=self._file_step_name,
+            file_step_name_suffix="" if self._file_step_name_suffix is None
+            else "-" + self._file_step_name_suffix,
+            file_extenstion=self._file_extension)
+
+    def output_filepath(self) -> Path:
+        return Path(self._dist_path, self.filename())
+
+    @abstractmethod
+    def eligible(self) -> bool:
+        pass
+
+    def write_file(self) -> None:
+        if not self.eligible():
+            return
+
+        filepath = self.output_filepath()
+        with filepath.open("w") as f:
+            self._write_file_content(f)
+        filepath.chmod(0o755)
+
+    @abstractmethod
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        pass
