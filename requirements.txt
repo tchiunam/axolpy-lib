@@ -8,3 +8,4 @@ coverage
 
 # Others
 atlassian-python-api
+pyyaml
