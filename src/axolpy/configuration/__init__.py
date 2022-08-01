@@ -1,5 +1,5 @@
 import os
-from configparser import ConfigParser
+from configparser import ConfigParser, ExtendedInterpolation
 from pathlib import Path
 
 
@@ -42,7 +42,7 @@ class AxolpyConfigManager(object):
         :rtype: :class:`ConfigParser`
         """
 
-        config = ConfigParser()
+        config = ConfigParser(interpolation=ExtendedInterpolation())
         conf_path = AxolpyConfigManager.get_config_path()
         config_file = conf_path / f"{name}.ini"
         if config_file.exists():
