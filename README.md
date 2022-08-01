@@ -23,14 +23,14 @@
 
 #### Code Quality
 <div align="left">
-  <a href="https://github.com/tchiunam/axolpy-lib/actions/workflows/python.yml">
-    <img alt="Python" src="https://github.com/tchiunam/axolpy-lib/actions/workflows/python.yml/badge.svg" />
+  <a href="https://github.com/tchiunam/axolpy-lib/actions/workflows/python.yaml">
+    <img alt="Python" src="https://github.com/tchiunam/axolpy-lib/actions/workflows/python.yaml/badge.svg" />
   </a>
   <a href="https://codecov.io/gh/tchiunam/axolpy-lib">
     <img alt="codecov" src="https://codecov.io/gh/tchiunam/axolpy-lib/branch/main/graph/badge.svg?token=JZTOZY5UXL" />
   </a>
-  <a href="https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yml">
-    <img alt="CodeQL" src="https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yml/badge.svg" />
+  <a href="https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yaml">
+    <img alt="CodeQL" src="https://github.com/tchiunam/axolpy-lib/actions/workflows/codeql-analysis.yaml/badge.svg" />
   </a>
 </div>
 
