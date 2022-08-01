@@ -47,6 +47,7 @@ class TestAxolpyConfigManager(object):
         # Test with exsiting config file
         config = AxolpyConfigManager.get_context("library")
         assert config.get("main", "basepath") == str(axolpy_path)
+        assert config["borrow_list"]["book"] == "The Book of John Doe"
 
         # Test with non-exsiting config file
         with pytest.raises(FileNotFoundError):
