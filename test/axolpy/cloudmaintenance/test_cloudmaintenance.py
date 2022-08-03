@@ -14,8 +14,8 @@ def test_operator() -> None:
             name="simple-deployment",
             namespace=namespace,
             replicas=1))
-    operator.add_eks_stateful_set(
-        stateful_set=StatefulSet(
+    operator.add_eks_statefulset(
+        statefulset=StatefulSet(
             name="simple-stateful-set",
             namespace=namespace,
             replicas=1))
@@ -39,6 +39,6 @@ def test_operator() -> None:
             class_type="db.t2.micro"))
 
     assert len(operator.eks_deployments) == 1
-    assert len(operator.eks_stateful_sets) == 1
+    assert len(operator.eks_statefulsets) == 1
     assert len(operator.ecs_services) == 1
     assert len(operator.rds_databases) == 1
