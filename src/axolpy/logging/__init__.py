@@ -65,7 +65,6 @@ def get_logger(name: str = None, level: int = None) -> logging.Logger:
             if "logger.default.name" in config["logging"]:
                 default_name = config["logging"]["logger.default.name"]
     except FileNotFoundError:
-        # Do nothing if config of default context is not set
         pass
 
     if name is None:

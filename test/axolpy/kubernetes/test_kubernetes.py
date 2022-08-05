@@ -29,7 +29,7 @@ class TestKubernetesModel(object):
 
         assert namespace.name == namespace_name
         assert namespace.cluster == cluster
-        assert namespace.stateful_sets == {}
+        assert namespace.statefulsets == {}
         assert namespace.deployments == {}
 
         assert cluster.namespace(namespace_name) == namespace
@@ -77,7 +77,7 @@ class TestKubernetesModel(object):
                         foo="bar")
         s.add_property(name="priority", value=2)
 
-        actual_statefulset = namespace.stateful_set(
+        actual_statefulset = namespace.statefulset(
             statefulset_name)
 
         assert actual_statefulset.name == statefulset_name
@@ -97,7 +97,7 @@ class TestKubernetesModel(object):
         namespace = pytest.test_kubernetes_model_namespace
         assert str(
             namespace) == f"{namespace.__class__.__name__}" + \
-            f"(name: {namespace.name}, 1 stateful_sets, 1 deployments)"
+            f"(name: {namespace.name}, 1 statefulsets, 1 deployments)"
 
 
 def test_aws_cluster_ref():
