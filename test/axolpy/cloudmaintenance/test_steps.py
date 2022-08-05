@@ -1,8 +1,10 @@
 from pathlib import Path
+from typing import Dict, List
 
 import pytest
 from axolpy.cloudmaintenance import Operator, ResourceDataLoader
-from axolpy.cloudmaintenance.steps import UpdateECSTaskCount
+from axolpy.cloudmaintenance.steps import (UpdateECSTaskCount,
+                                           UpdateK8sStatefulSetReplicas)
 
 
 @pytest.fixture
@@ -44,37 +46,124 @@ def operators(aws_regions):
     return operators
 
 
-def test_update_ecs_task_count(operators) -> None:
-    dist_path = Path(__file__).parent.joinpath(
+class TestCloudMaintenanceStep(object):
+    """
+    Test the cloud maintenance steps.
+    """
+
+    _dist_path = Path(__file__).parent.joinpath(
         "testdata",
         "maintenance",
         "dist")
-    dist_verify_path = Path(__file__).parent.joinpath(
+    _dist_verify_path = Path(__file__).parent.joinpath(
         "testdata",
         "maintenance",
         "dist-verify")
 
-    for i in range(3):
-        id = f"operator{i+1}"
-        operator = operators[id]
+    def test_update_ecs_task_count_zero(self, operators) -> None:
+        """
+        Test the update ECS task count step with zeroinfy=True.
 
-        update_ecs_task_count_zero = UpdateECSTaskCount(
-            step_no=0,
-            operator=operator,
-            dist_path=dist_path,
-            zeroinfy=True)
-        update_ecs_task_count_zero.write_file()
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
 
-    expect_filenames = ["operator1-0-update-ecs-task-count-ZERO.sh",
-                        "operator2-0-update-ecs-task-count-ZERO.sh"]
+        expect_filenames = ["operator1-0-update-ecs-task-count-ZERO.sh",
+                            "operator2-0-update-ecs-task-count-ZERO.sh"]
 
-    for filename in expect_filenames:
-        filepath = Path(dist_path, filename)
-        assert filepath.exists()
-        assert filepath.is_file()
+        self._test_update_ecs_task_count(
+            operators=operators,
+            zeroinfy=True,
+            expect_filenames=expect_filenames)
 
-        # Verify that the file content is the same as file in dist-verify
-        filepath_verify = Path(dist_verify_path, filename)
-        with filepath.open() as f:
-            with filepath_verify.open() as f_verify:
-                assert f.read() == f_verify.read()
+    def _test_update_ecs_task_count(
+            self,
+            operators,
+            zeroinfy: bool = False,
+            expect_filenames: List[str] = list()) -> None:
+        """
+        Test the update ECS task count step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        :param zeroinfy: Whether to zeroinfy the task count.
+        :type zeroinfy: bool
+        :param expect_filenames: The filenames of the expected files.
+        :type expect_filenames: List[str]
+        """
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            update_ecs_task_count_zero = UpdateECSTaskCount(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path,
+                zeroinfy=True)
+            update_ecs_task_count_zero.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()
+
+    def test_update_k8s_statefulset_replicas_zero(self, operators) -> None:
+        """
+        Test the update k8s statefulset replicas step with zeroinfy=True.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator1-0-update-k8s-statefulset-replicas-ZERO.sh",
+                            "operator3-0-update-k8s-statefulset-replicas-ZERO.sh"]
+
+        self._test_update_k8s_statefulset_replicas(
+            operators=operators,
+            zeroinfy=True,
+            expect_filenames=expect_filenames)
+
+    def _test_update_k8s_statefulset_replicas(
+            self,
+            operators,
+            zeroinfy: bool = False,
+            expect_filenames: List[str] = list()) -> None:
+        """
+        Test the update k8s statefulset replicas step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        :param zeroinfy: Whether to zeroinfy the task count.
+        :type zeroinfy: bool
+        :param expect_filenames: The filenames of the expected files.
+        :type expect_filenames: List[str]
+        """
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            update_k8s_statefulset_replicas = UpdateK8sStatefulSetReplicas(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path,
+                zeroinfy=zeroinfy)
+            update_k8s_statefulset_replicas.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()

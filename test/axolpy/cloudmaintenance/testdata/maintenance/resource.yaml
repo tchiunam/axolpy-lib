@@ -57,6 +57,10 @@ regions:
                     replicas: 4
                   properties:
                     restart_after_upgrade: True
+                - name: psql-sync-service
+                  replicas: 8
+                  patch:
+                    replicas: 1
               deployments:
                 - name: p-address-api
                   replicas: 2
