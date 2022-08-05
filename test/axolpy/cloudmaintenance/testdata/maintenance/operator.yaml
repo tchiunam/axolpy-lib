@@ -15,6 +15,7 @@ operator1:
             p-general:
               statefulsets:
                 - name: redis-sync-service
+                - name: psql-sync-service
               deployments:
                 - name: p-address-api
 operator2:
