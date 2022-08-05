@@ -1,0 +1,74 @@
+regions:
+  ap-east-1:
+    databases:
+      - id: user
+        type: instance
+        host: user.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
+        port: 5432
+        engine_type: postgresql
+        engine_version: 12.6
+        patch:
+          engine_version: 13.6
+      - id: address
+        type: instance
+        host: address.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
+        patch:
+          engine_version: 13.6
+          class_type: db.t4g.small
+      - id: audit_log
+        type: instance
+        host: audit_log.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
+        patch:
+          class_type: db.m6g.2xlarge
+      - id: subcription
+        type: instance
+        host: subscription.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
+        dbname: subscription_v1
+        patch:
+          engine_version: 12.10
+          class_type: db.m6g.large
+    ecs:
+      clusters:
+        Production:
+          services:
+          - name: p-authentication-api
+            desired_count: 5
+            patch:
+              desired_count: 10
+          - name: p-address-api
+            desired_count: 1
+          - name: p-audit-log-api
+            desired_count: 10
+            patch:
+              desired_count: 11
+          - name: p-db-housekeeping-monthly
+            desired_count: 10
+    eks:
+      clusters:
+        p-main:
+          namespaces:
+            p-general:
+              statefulsets:
+                - name: database-sync-service
+                  replicas: 2
+                - name: redis-sync-service
+                  replicas: 3
+                  patch:
+                    replicas: 4
+                  properties:
+                    restart_after_upgrade: True
+              deployments:
+                - name: p-address-api
+                  replicas: 2
+                - name: p-audit-log-api
+                  replicas: 4
+                  properties:
+                    restart_after_upgrade: True
+                - name: p-db-housekeeping-monthly
+                  replicas: 2
+                  properties:
+                    restart_after_upgrade: True
+            p-authentication:
+              deployments:
+                - name: p-authentication-api
+                  replicas: 5

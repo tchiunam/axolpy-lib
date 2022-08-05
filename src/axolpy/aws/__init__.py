@@ -136,7 +136,7 @@ class AbstractECSServicePatchable(ABC):
 
 
 class ECSServicePatch(AbstractECSServicePatchable):
-    def __init__(self, desired_count: str) -> None:
+    def __init__(self, desired_count: str = None) -> None:
         super().__init__(desired_count=desired_count)
 
     def __str__(self) -> str:
@@ -220,8 +220,8 @@ class AbstractRDSDatabasePatchable(ABC):
 class RDSDatabasePatch(AbstractRDSDatabasePatchable):
     def __init__(
             self,
-            engine_version: str,
-            class_type: str) -> None:
+            engine_version: str = None,
+            class_type: str = None) -> None:
         super().__init__(
             engine_version=engine_version,
             class_type=class_type)
@@ -242,10 +242,10 @@ class RDSDatabase(AbstractRDSDatabasePatchable):
                  region: AWSRegion,
                  type: str,
                  host: str,
-                 port: int,
-                 engine_type: str,
-                 engine_version: str,
-                 class_type: str,
+                 port: int = -1,
+                 engine_type: str = "postgresql",
+                 engine_version: str = None,
+                 class_type: str = None,
                  dbname: str = None,
                  patch: RDSDatabasePatch = None) -> None:
         """
@@ -284,7 +284,8 @@ class RDSDatabase(AbstractRDSDatabasePatchable):
         self._region: AWSRegion = region
         self._type: str = type
         self._host: str = host
-        self._port: str = port
+        self._port: int = port if port != -1 else lambda engine_type: \
+            {'postgresql': 5432, 'mysql': 3306}[engine_type]
         self._engine_type: str = engine_type
         self._dbname: str = dbname if dbname else id
         self._patch: RDSDatabasePatch = patch
@@ -308,7 +309,7 @@ class RDSDatabase(AbstractRDSDatabasePatchable):
         return self._host
 
     @property
-    def port(self) -> str:
+    def port(self) -> int:
         return self._port
 
     @property

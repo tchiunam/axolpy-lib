@@ -88,7 +88,7 @@ class Namespace(object):
 
         self._name: str = name
         self._cluster: Cluster = cluster
-        self._stateful_sets: Dict[str, StatefulSet] = dict()
+        self._statefulsets: Dict[str, StatefulSet] = dict()
         self._deployments: Dict[str, Deployment] = dict()
 
         self._cluster.add_namespace(namespace=self)
@@ -102,14 +102,14 @@ class Namespace(object):
         return self._cluster
 
     @property
-    def stateful_sets(self) -> Dict[str, StatefulSet]:
-        return self._stateful_sets.copy()
+    def statefulsets(self) -> Dict[str, StatefulSet]:
+        return self._statefulsets.copy()
 
-    def stateful_set(self, name: str) -> StatefulSet:
-        return self._stateful_sets[name]
+    def statefulset(self, name: str) -> StatefulSet:
+        return self._statefulsets[name]
 
-    def add_stateful_set(self, stateful_set: StatefulSet) -> None:
-        self._stateful_sets[stateful_set.name] = stateful_set
+    def add_statefulset(self, statefulset: StatefulSet) -> None:
+        self._statefulsets[statefulset.name] = statefulset
 
     @property
     def deployments(self) -> Dict[str, Deployment]:
@@ -122,7 +122,7 @@ class Namespace(object):
         self._deployments[deployment.name] = deployment
 
     def __str__(self) -> str:
-        return f"{__class__.__name__}(name: {self._name}, {len(self._stateful_sets)} stateful_sets" + \
+        return f"{__class__.__name__}(name: {self._name}, {len(self._statefulsets)} statefulsets" + \
             f", {len(self._deployments)} deployments)"
 
 
@@ -136,7 +136,7 @@ class AbstractStatefulSetPatchable(ABC):
 
 
 class StatefulSetPatch(AbstractStatefulSetPatchable):
-    def __init__(self, replicas: int) -> None:
+    def __init__(self, replicas: int = -1) -> None:
         super().__init__(replicas=replicas)
 
     def __str__(self) -> str:
@@ -174,7 +174,7 @@ class StatefulSet(AbstractStatefulSetPatchable):
         for k, v in kwargs.items():
             self.add_property(name=k, value=v)
 
-        self._namespace.add_stateful_set(stateful_set=self)
+        self._namespace.add_statefulset(statefulset=self)
 
     @property
     def name(self) -> str:
@@ -213,7 +213,7 @@ class AbstractDeploymentPatchable(ABC):
 
 
 class DeploymentPatch(AbstractDeploymentPatchable):
-    def __init__(self, replicas: int) -> None:
+    def __init__(self, replicas: int = -1) -> None:
         super().__init__(replicas=replicas)
 
     def __str__(self) -> str:
