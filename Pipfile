@@ -1,0 +1,22 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+# Solidity
+py-solc-x = ">=1.1.1"
+
+# Testing
+pytest = ">=7.1.2"
+pytest-html = ">=3.1.1"
+coverage = ">=6.4.2"
+
+# Others
+atlassian-python-api = ">=3.25.0"
+pyyaml = ">=6.0"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
