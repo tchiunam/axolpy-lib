@@ -61,6 +61,8 @@ regions:
               desired_count: 11
           - name: p-db-housekeeping-monthly
             desired_count: 10
+            properties:
+              restart_after_upgrade: True
     eks:
       clusters:
         p-main:

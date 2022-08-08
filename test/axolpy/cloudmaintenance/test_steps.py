@@ -74,18 +74,38 @@ class TestCloudMaintenanceStep(object):
                             "operator2-0-update-ecs-task-count-ZERO.sh"]
 
         self._test_update_ecs_task_count(
+            step_no=0,
             operators=operators,
             zeroinfy=True,
             expect_filenames=expect_filenames)
 
+    def test_update_ecs_task_count_resume(self, operators) -> None:
+        """
+        Test the update ECS task count step with zeroinfy=False.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator1-1-update-ecs-task-count-RESUME.sh",
+                            "operator2-1-update-ecs-task-count-RESUME.sh"]
+
+        self._test_update_ecs_task_count(
+            step_no=1,
+            operators=operators,
+            expect_filenames=expect_filenames)
+
     def _test_update_ecs_task_count(
             self,
+            step_no: int,
             operators,
             zeroinfy: bool = False,
             expect_filenames: List[str] = list()) -> None:
         """
         Test the update ECS task count step.
 
+        :param step_no: The step number.
+        :type step_no: int
         :param operators: A dictionary of Operators.
         :type operators: Dict[:class:`Operator`]
         :param zeroinfy: Whether to zeroinfy the task count.
@@ -99,10 +119,10 @@ class TestCloudMaintenanceStep(object):
             operator = operators[id]
 
             update_ecs_task_count_zero = UpdateECSTaskCount(
-                step_no=0,
+                step_no=step_no,
                 operator=operator,
                 dist_path=self._dist_path,
-                zeroinfy=True)
+                zeroinfy=zeroinfy)
             update_ecs_task_count_zero.write_file()
 
         for filename in expect_filenames:
