@@ -3,6 +3,8 @@ operator1:
     databases:
       - id: user
       - id: address
+      - id: favorite
+      - id: bookmark
     ecs:
       clusters:
         Production:

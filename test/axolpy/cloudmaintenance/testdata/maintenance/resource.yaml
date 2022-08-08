@@ -27,6 +27,24 @@ regions:
         patch:
           engine_version: 12.10
           class_type: db.m6g.large
+      - id: favorite
+        type: instance
+        host: favorite.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
+        engine_type: mysql
+        engine_version: 5.7.37
+        dbname: favorite_v1
+        patch:
+          engine_version: 8.0.30
+          class_type: db.m6g.large
+      - id: bookmark
+        type: instance
+        host: bookmark.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
+        engine_type: mysql
+        engine_version: 5.6.51
+        dbname: bookmark_v2
+        patch:
+          engine_version: 8.0.30
+          class_type: db.m6g.small
     ecs:
       clusters:
         Production:
