@@ -284,7 +284,7 @@ class RDSDatabase(AbstractRDSDatabasePatchable):
         self._region: AWSRegion = region
         self._type: str = type
         self._host: str = host
-        self._port: int = port if port != -1 else lambda engine_type: \
+        self._port: int = port if port != -1 else \
             {'postgresql': 5432, 'mysql': 3306}[engine_type]
         self._engine_type: str = engine_type
         self._dbname: str = dbname if dbname else id

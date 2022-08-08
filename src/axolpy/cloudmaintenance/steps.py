@@ -194,3 +194,36 @@ class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
                     namespace=deployment.namespace.name,
                     name=deployment.name,
                     replicas=0 if self._zeroinfy else deployment.replicas) + "\n")
+
+
+class DumpPgstats(CloudMaintenanceStep):
+    _file_step_name: str = "apro-dump-pgstats"
+    _file_extension: str = "sh"
+
+    _cmd: str = "psql -h {host} -p {port} -d {dbname} -U postgres -W -c 'select * from pg_stat_all_tables order by schemaname, relname' -o {id}-pg_stat-`date +%Y%m%d-%H%M%S`.csv"
+
+    _content_header: List[str] = ["#!/bin/bash"]
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        for db in self._operator.rds_databases:
+            if db.is_postgresql():
+                return True
+
+        return False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        file.write("\n\n")
+
+        for db in self._operator.rds_databases:
+            if db.is_postgresql():
+                file.write(
+                    "echo \"database id: {id}\"\n".format(id=db.id))
+                file.write(self._cmd.format(
+                    host=db.host, port=db.port, dbname=db.dbname, id=db.id) + "\n")

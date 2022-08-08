@@ -3,7 +3,7 @@ from typing import Dict, List
 
 import pytest
 from axolpy.cloudmaintenance import Operator, ResourceDataLoader
-from axolpy.cloudmaintenance.steps import (UpdateECSTaskCount,
+from axolpy.cloudmaintenance.steps import (DumpPgstats, UpdateECSTaskCount,
                                            UpdateK8sDeploymentReplicas,
                                            UpdateK8sStatefulSetReplicas)
 
@@ -211,6 +211,38 @@ class TestCloudMaintenanceStep(object):
                 dist_path=self._dist_path,
                 zeroinfy=zeroinfy)
             update_k8s_deployment_replicas.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()
+
+    def test_dump_pg_stats(self, operators) -> None:
+        """
+        Test the dump pg stats step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator1-0-apro-dump-pgstats.sh",
+                            "operator2-0-apro-dump-pgstats.sh"]
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            dump_pg_stats = DumpPgstats(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path)
+            dump_pg_stats.write_file()
 
         for filename in expect_filenames:
             filepath = Path(self._dist_path, filename)
