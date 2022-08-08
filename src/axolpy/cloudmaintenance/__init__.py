@@ -5,8 +5,8 @@ from typing import Dict, Iterable, List
 
 import yaml
 
-from ..aws import (AWSRegion, ECSCluster, ECSService, RDSDatabase,
-                   RDSDatabasePatch)
+from ..aws import (AWSRegion, ECSCluster, ECSService, ECSServicePatch,
+                   RDSDatabase, RDSDatabasePatch)
 from ..kubernetes import (AWSClusterRef, Cluster, Deployment, DeploymentPatch,
                           Namespace, StatefulSet, StatefulSetPatch)
 
@@ -38,6 +38,8 @@ class ResourceDataLoader(object):
                                    "class_type",
                                    "dbname"]
         database_patch_optional_attrs = ["engine_version", "class_type"]
+        ecs_service_optional_props = ["restart_after_upgrade"]
+        ecs_service_patch_optional_attrs = ["desired_count"]
         eks_statefulset_optional_props = ["restart_after_upgrade"]
         eks_statefulset_patch_optional_attrs = ["replicas"]
         eks_deployment_optional_props = ["restart_after_upgrade"]
@@ -80,11 +82,22 @@ class ResourceDataLoader(object):
                     region=region)
 
                 for service_yaml in cluster_yaml["services"] if "services" in cluster_yaml else []:
-                    cluster.add_service(
-                        service=ECSService(
-                            name=service_yaml["name"],
-                            cluster=cluster,
-                            desired_count=service_yaml["desired_count"]))
+                    svc_attr = {"name": service_yaml["name"],
+                                "cluster": cluster,
+                                "desired_count": service_yaml["desired_count"]}
+
+                    # Lookup attributes needed for patching
+                    if "patch" in service_yaml:
+                        patch_attr = dict()
+                        for attr in ecs_service_patch_optional_attrs:
+                            if attr in service_yaml["patch"]:
+                                patch_attr[attr] = service_yaml["patch"][attr]
+                        svc_attr["patch"] = ECSServicePatch(
+                            **patch_attr)
+                    for prop in ecs_service_optional_props if "properties" in service_yaml else []:
+                        if prop in service_yaml["properties"]:
+                            svc_attr[prop] = service_yaml["properties"][prop]
+                    cluster.add_service(service=ECSService(**svc_attr))
 
             # Extract eks resources
             for cluster_name, cluster_yaml in region_yaml["eks"]["clusters"].items() \

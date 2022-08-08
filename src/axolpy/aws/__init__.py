@@ -128,15 +128,16 @@ class ECSCluster(object):
 
 class AbstractECSServicePatchable(ABC):
     def __init__(self, desired_count: int) -> None:
-        self._desired_count: str = desired_count
+        self._desired_count: int = desired_count
 
     @property
-    def desired_count(self) -> str:
+    def desired_count(self) -> int:
         return self._desired_count
 
 
 class ECSServicePatch(AbstractECSServicePatchable):
-    def __init__(self, desired_count: str = None) -> None:
+    def __init__(self, desired_count: int = -1) -> None:
+        # If desired_count is -1, then no patch is needed.
         super().__init__(desired_count=desired_count)
 
     def __str__(self) -> str:
@@ -284,7 +285,7 @@ class RDSDatabase(AbstractRDSDatabasePatchable):
         self._region: AWSRegion = region
         self._type: str = type
         self._host: str = host
-        self._port: int = port if port != -1 else lambda engine_type: \
+        self._port: int = port if port != -1 else \
             {'postgresql': 5432, 'mysql': 3306}[engine_type]
         self._engine_type: str = engine_type
         self._dbname: str = dbname if dbname else id

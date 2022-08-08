@@ -27,6 +27,24 @@ regions:
         patch:
           engine_version: 12.10
           class_type: db.m6g.large
+      - id: favorite
+        type: instance
+        host: favorite.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
+        engine_type: mysql
+        engine_version: 5.7.37
+        dbname: favorite_v1
+        patch:
+          engine_version: 8.0.30
+          class_type: db.m6g.large
+      - id: bookmark
+        type: instance
+        host: bookmark.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
+        engine_type: mysql
+        engine_version: 5.6.51
+        dbname: bookmark_v2
+        patch:
+          engine_version: 8.0.30
+          class_type: db.m6g.small
     ecs:
       clusters:
         Production:
@@ -43,6 +61,8 @@ regions:
               desired_count: 11
           - name: p-db-housekeeping-monthly
             desired_count: 10
+            properties:
+              restart_after_upgrade: True
     eks:
       clusters:
         p-main:
@@ -57,17 +77,29 @@ regions:
                     replicas: 4
                   properties:
                     restart_after_upgrade: True
+                - name: psql-sync-service
+                  replicas: 8
+                  patch:
+                    replicas: 1
               deployments:
                 - name: p-address-api
                   replicas: 2
+                  patch:
+                    replicas: 3
                 - name: p-audit-log-api
                   replicas: 4
+                  patch:
+                    replicas: 10
                   properties:
                     restart_after_upgrade: True
                 - name: p-db-housekeeping-monthly
                   replicas: 2
                   properties:
                     restart_after_upgrade: True
+                - name: p-aggregation-api
+                  replicas: 1
+                  patch:
+                    replicas: 2
             p-authentication:
               deployments:
                 - name: p-authentication-api

@@ -3,6 +3,8 @@ operator1:
     databases:
       - id: user
       - id: address
+      - id: favorite
+      - id: bookmark
     ecs:
       clusters:
         Production:
@@ -15,6 +17,7 @@ operator1:
             p-general:
               statefulsets:
                 - name: redis-sync-service
+                - name: psql-sync-service
               deployments:
                 - name: p-address-api
 operator2:
@@ -47,6 +50,7 @@ operator3:
                 - name: database-sync-service
               deployments:
                 - name: p-db-housekeeping-monthly
+                - name: p-aggregation-api
             p-authentication:
               deployments:
                 - name: p-authentication-api
