@@ -102,11 +102,17 @@ class UpdateECSTaskCount(CloudMaintenanceStep):
     def _write_file_content(self, file: TextIOWrapper) -> None:
         file.writelines(self._content_header)
         for i, service in enumerate(self._operator.ecs_services):
+            count = service.desired_count
+            if self._zeroinfy:
+                count = 0
+            elif service.patch and service.patch.desired_count > 0:
+                count = service.patch.desired_count
+
             file.write(self._cmd.format(
                 region=service.cluster.region.name,
                 cluster=service.cluster.name,
                 name=service.name,
-                count=0 if self._zeroinfy else service.desired_count) + "\n")
+                count=count) + "\n")
             if i < len(self._operator.ecs_services) - 1:
                 file.write("# sleep 2\n")
 
