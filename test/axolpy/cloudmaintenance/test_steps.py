@@ -4,6 +4,7 @@ from typing import Dict, List
 import pytest
 from axolpy.cloudmaintenance import Operator, ResourceDataLoader
 from axolpy.cloudmaintenance.steps import (UpdateECSTaskCount,
+                                           UpdateK8sDeploymentReplicas,
                                            UpdateK8sStatefulSetReplicas)
 
 
@@ -156,6 +157,60 @@ class TestCloudMaintenanceStep(object):
                 dist_path=self._dist_path,
                 zeroinfy=zeroinfy)
             update_k8s_statefulset_replicas.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()
+
+    def test_update_k8s_deployment_replicas_zero(self, operators) -> None:
+        """
+        Test the update k8s deployment replicas step with zeroinfy=True.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator1-0-apro-change-k8s-deployment-replicas-ZERO.sh",
+                            "operator3-0-apro-change-k8s-deployment-replicas-ZERO.sh"]
+
+        self._test_update_k8s_deployment_replicas(
+            operators=operators,
+            zeroinfy=True,
+            expect_filenames=expect_filenames)
+
+    def _test_update_k8s_deployment_replicas(
+            self,
+            operators,
+            zeroinfy: bool = False,
+            expect_filenames: List[str] = list()) -> None:
+        """
+        Test the update k8s deployment replicas step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        :param zeroinfy: Whether to zeroinfy the task count.
+        :type zeroinfy: bool
+        :param expect_filenames: The filenames of the expected files.
+        :type expect_filenames: List[str]
+        """
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            update_k8s_deployment_replicas = UpdateK8sDeploymentReplicas(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path,
+                zeroinfy=zeroinfy)
+            update_k8s_deployment_replicas.write_file()
 
         for filename in expect_filenames:
             filepath = Path(self._dist_path, filename)

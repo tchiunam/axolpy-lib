@@ -64,14 +64,22 @@ regions:
               deployments:
                 - name: p-address-api
                   replicas: 2
+                  patch:
+                    replicas: 3
                 - name: p-audit-log-api
                   replicas: 4
+                  patch:
+                    replicas: 10
                   properties:
                     restart_after_upgrade: True
                 - name: p-db-housekeeping-monthly
                   replicas: 2
                   properties:
                     restart_after_upgrade: True
+                - name: p-aggregation-api
+                  replicas: 1
+                  patch:
+                    replicas: 2
             p-authentication:
               deployments:
                 - name: p-authentication-api
