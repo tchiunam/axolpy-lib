@@ -82,7 +82,7 @@ class UpdateECSTaskCount(CloudMaintenanceStep):
 
     _cmd: str = "# aws ecs update-service --region {region} --cluster {cluster} --service {name} --desired-count {count}"
 
-    _content_header: List[str] = ["#!/bin/bash"]
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
 
     _zeroinfy: bool = False
 
@@ -101,7 +101,6 @@ class UpdateECSTaskCount(CloudMaintenanceStep):
 
     def _write_file_content(self, file: TextIOWrapper) -> None:
         file.writelines(self._content_header)
-        file.write("\n\n")
         for i, service in enumerate(self._operator.ecs_services):
             file.write(self._cmd.format(
                 region=service.cluster.region.name,
@@ -123,7 +122,7 @@ class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
 
     _cmd: str = "# kubectl scale -n {namespace} statefulsets {name} --replicas={replicas}"
 
-    _content_header: List[str] = ["#!/bin/bash"]
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
 
     _zeroinfy: bool = False
 
@@ -146,8 +145,6 @@ class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
 
     def _write_file_content(self, file: TextIOWrapper) -> None:
         file.writelines(self._content_header)
-        file.write("\n\n")
-
         for statefulset in self._operator.eks_statefulsets:
             if not statefulset.property("restart_after_upgrade"):
                 file.write(self._cmd.format(
@@ -163,7 +160,7 @@ class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
 
     _cmd: str = "# kubectl scale -n {namespace} deployment/{name} --replicas={replicas}"
 
-    _content_header: List[str] = ["#!/bin/bash"]
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
 
     _zeroinfy: bool = False
 
@@ -186,8 +183,6 @@ class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
 
     def _write_file_content(self, file: TextIOWrapper) -> None:
         file.writelines(self._content_header)
-        file.write("\n\n")
-
         for deployment in self._operator.eks_deployments:
             if not deployment.property("restart_after_upgrade"):
                 file.write(self._cmd.format(
@@ -202,7 +197,7 @@ class DumpPgstats(CloudMaintenanceStep):
 
     _cmd: str = "psql -h {host} -p {port} -d {dbname} -U postgres -W -c 'select * from pg_stat_all_tables order by schemaname, relname' -o {id}-pg_stat-`date +%Y%m%d-%H%M%S`.csv"
 
-    _content_header: List[str] = ["#!/bin/bash"]
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
 
     def __init__(self,
                  step_no: int,
@@ -219,11 +214,39 @@ class DumpPgstats(CloudMaintenanceStep):
 
     def _write_file_content(self, file: TextIOWrapper) -> None:
         file.writelines(self._content_header)
-        file.write("\n\n")
-
         for db in self._operator.rds_databases:
             if db.is_postgresql():
                 file.write(
                     "echo \"database id: {id}\"\n".format(id=db.id))
+                file.write(self._cmd.format(
+                    host=db.host, port=db.port, dbname=db.dbname, id=db.id) + "\n")
+
+
+class DumpMysqlTableStatus(CloudMaintenanceStep):
+    _file_step_name: str = "apro-dump-mysqltablestatus"
+    _file_extension: str = "sh"
+
+    _cmd: str = "mysql -h {host} -p {port} -d {dbname} -U root -p -e 'show table status' -o {id}-tablestatus-`date +%Y%m%d-%H%M%S`.txt"
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        for db in self._operator.rds_databases:
+            if db.is_mysql():
+                return True
+
+        return False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        for db in self._operator.rds_databases:
+            if db.is_mysql():
+                file.write("echo \"database id: {id}\"\n".format(id=db.id))
                 file.write(self._cmd.format(
                     host=db.host, port=db.port, dbname=db.dbname, id=db.id) + "\n")
