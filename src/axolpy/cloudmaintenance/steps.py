@@ -154,3 +154,43 @@ class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
                     namespace=statefulset.namespace.name,
                     name=statefulset.name,
                     replicas=0 if self._zeroinfy else statefulset.replicas) + "\n")
+
+
+class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
+    _file_step_name: str = "apro-change-k8s-deployment-replicas"
+    _file_step_name_suffix: str = "RESUME"
+    _file_extension: str = "sh"
+
+    _cmd: str = "# kubectl scale -n {namespace} deployment/{name} --replicas={replicas}"
+
+    _content_header: List[str] = ["#!/bin/bash"]
+
+    _zeroinfy: bool = False
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path,
+                 zeroinfy: bool = False) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+        self._zeroinfy = zeroinfy
+        if self._zeroinfy:
+            self._file_step_name_suffix = "ZERO"
+
+    def eligible(self) -> bool:
+        for deployment in self._operator.eks_deployments:
+            if not deployment.property("restart_after_upgrade"):
+                return True
+
+        return False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        file.write("\n\n")
+
+        for deployment in self._operator.eks_deployments:
+            if not deployment.property("restart_after_upgrade"):
+                file.write(self._cmd.format(
+                    namespace=deployment.namespace.name,
+                    name=deployment.name,
+                    replicas=0 if self._zeroinfy else deployment.replicas) + "\n")
