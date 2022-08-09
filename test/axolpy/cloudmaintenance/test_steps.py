@@ -4,6 +4,7 @@ from typing import Dict, List
 import pytest
 from axolpy.cloudmaintenance import Operator, ResourceDataLoader
 from axolpy.cloudmaintenance.steps import (DumpMysqlTableStatus, DumpPgstats,
+                                           ModifyDatabaseEngineVersion,
                                            UpdateECSTaskCount,
                                            UpdateK8sDeploymentReplicas,
                                            UpdateK8sStatefulSetReplicas)
@@ -198,8 +199,8 @@ class TestCloudMaintenanceStep(object):
         :type operators: Dict[:class:`Operator`]
         """
 
-        expect_filenames = ["operator1-0-apro-change-k8s-deployment-replicas-ZERO.sh",
-                            "operator3-0-apro-change-k8s-deployment-replicas-ZERO.sh"]
+        expect_filenames = ["operator1-0-change-k8s-deployment-replicas-ZERO.sh",
+                            "operator3-0-change-k8s-deployment-replicas-ZERO.sh"]
 
         self._test_update_k8s_deployment_replicas(
             operators=operators,
@@ -252,8 +253,8 @@ class TestCloudMaintenanceStep(object):
         :type operators: Dict[:class:`Operator`]
         """
 
-        expect_filenames = ["operator1-0-apro-dump-pgstats.sh",
-                            "operator2-0-apro-dump-pgstats.sh"]
+        expect_filenames = ["operator1-0-dump-pgstats.sh",
+                            "operator2-0-dump-pgstats.sh"]
 
         for i in range(3):
             id = f"operator{i+1}"
@@ -284,7 +285,7 @@ class TestCloudMaintenanceStep(object):
         :type operators: Dict[:class:`Operator`]
         """
 
-        expect_filenames = ["operator1-0-apro-dump-mysqltablestatus.sh"]
+        expect_filenames = ["operator1-0-dump-mysqltablestatus.sh"]
 
         for i in range(3):
             id = f"operator{i+1}"
@@ -295,6 +296,38 @@ class TestCloudMaintenanceStep(object):
                 operator=operator,
                 dist_path=self._dist_path)
             dump_mysql_table_status.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()
+
+    def test_modify_database_engine_version(self, operators) -> None:
+        """
+        Test the modify database engine version step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator1-0-modify-database-engineversion.sh",
+                            "operator2-0-modify-database-engineversion.sh"]
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            modify_database_engine_version = ModifyDatabaseEngineVersion(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path)
+            modify_database_engine_version.write_file()
 
         for filename in expect_filenames:
             filepath = Path(self._dist_path, filename)
