@@ -349,3 +349,34 @@ class QueryDatabaseStatus(CloudMaintenanceStep):
                 id=db.id) + "\n")
             if i < len(self._operator.rds_databases) - 1:
                 file.write("sleep 2\n")
+
+
+class RestartK8sDeployment(CloudMaintenanceStep):
+    _file_step_name: str = "restart-k8s-deployment"
+    _file_extension: str = "sh"
+
+    _cmd: str = "# kubectl rollout restart -n {namespace} deployment/{name}"
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    _zeroinfy: bool = False
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        for deployment in self._operator.eks_deployments:
+            if deployment.property("restart_after_upgrade"):
+                return True
+
+        return False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        for deployment in self._operator.eks_deployments:
+            if deployment.property("restart_after_upgrade"):
+                file.write(self._cmd.format(
+                    namespace=deployment.namespace.name, name=deployment.name) + "\n")

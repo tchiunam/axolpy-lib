@@ -7,6 +7,7 @@ from axolpy.cloudmaintenance.steps import (DumpMysqlTableStatus, DumpPgstats,
                                            ModifyDatabaseClassType,
                                            ModifyDatabaseEngineVersion,
                                            QueryDatabaseStatus,
+                                           RestartK8sDeployment,
                                            UpdateECSTaskCount,
                                            UpdateK8sDeploymentReplicas,
                                            UpdateK8sStatefulSetReplicas)
@@ -394,6 +395,38 @@ class TestCloudMaintenanceStep(object):
                 operator=operator,
                 dist_path=self._dist_path)
             query_database_status.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()
+
+    def test_restart_k8s_deployment(self, operators) -> None:
+        """
+        Test the restart k8s deployment step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator2-0-restart-k8s-deployment.sh",
+                            "operator3-0-restart-k8s-deployment.sh"]
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            restart_k8s_deployment = RestartK8sDeployment(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path)
+            restart_k8s_deployment.write_file()
 
         for filename in expect_filenames:
             filepath = Path(self._dist_path, filename)
