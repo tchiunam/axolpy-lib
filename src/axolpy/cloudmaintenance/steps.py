@@ -281,12 +281,44 @@ class ModifyDatabaseEngineVersion(CloudMaintenanceStep):
 
     def _write_file_content(self, file: TextIOWrapper) -> None:
         file.writelines(self._content_header)
-
         for i, db in enumerate(self._operator.rds_databases):
             if db.patch and db.patch.engine_version:
                 file.write(self._cmd.format(
                     region=db.region.name,
                     id=db.id,
                     version=db.patch.engine_version) + "\n")
+                if i < len(self._operator.rds_databases) - 1:
+                    file.write("# sleep 2\n")
+
+
+class ModifyDatabaseClassType(CloudMaintenanceStep):
+    _file_step_name: str = "modify-database-classtype"
+    _file_extension: str = "sh"
+
+    _cmd: str = "# aws rds modify-db-instance --region {region} --db-instance-identifier {id} --db-instance-class {class_type} --apply-immediately"
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        for db in self._operator.rds_databases:
+            if db.patch and hasattr(db.patch, "class_type"):
+                return True
+
+        return False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        for i, db in enumerate(self._operator.rds_databases):
+            if db.patch and db.patch.class_type:
+                file.write(self._cmd.format(
+                    region=db.region.name,
+                    id=db.id,
+                    class_type=db.patch.class_type) + "\n")
                 if i < len(self._operator.rds_databases) - 1:
                     file.write("# sleep 2\n")

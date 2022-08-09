@@ -4,6 +4,7 @@ from typing import Dict, List
 import pytest
 from axolpy.cloudmaintenance import Operator, ResourceDataLoader
 from axolpy.cloudmaintenance.steps import (DumpMysqlTableStatus, DumpPgstats,
+                                           ModifyDatabaseClassType,
                                            ModifyDatabaseEngineVersion,
                                            UpdateECSTaskCount,
                                            UpdateK8sDeploymentReplicas,
@@ -328,6 +329,38 @@ class TestCloudMaintenanceStep(object):
                 operator=operator,
                 dist_path=self._dist_path)
             modify_database_engine_version.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()
+
+    def test_modify_database_class_type(self, operators) -> None:
+        """
+        Test the modify database class type step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator1-0-modify-database-classtype.sh",
+                            "operator2-0-modify-database-classtype.sh"]
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            modify_database_class_type = ModifyDatabaseClassType(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path)
+            modify_database_class_type.write_file()
 
         for filename in expect_filenames:
             filepath = Path(self._dist_path, filename)
