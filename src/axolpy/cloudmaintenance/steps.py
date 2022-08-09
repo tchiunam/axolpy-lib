@@ -322,3 +322,30 @@ class ModifyDatabaseClassType(CloudMaintenanceStep):
                     class_type=db.patch.class_type) + "\n")
                 if i < len(self._operator.rds_databases) - 1:
                     file.write("# sleep 2\n")
+
+
+class QueryDatabaseStatus(CloudMaintenanceStep):
+    _file_step_name: str = "query-database-status"
+    _file_extension: str = "sh"
+
+    _cmd: str = "aws rds describe-db-instances --region {region} --db-instance-identifier {id} --query 'DBInstances[*].{{DBInstanceIdentifier:DBInstanceIdentifier,DBInstanceClass:DBInstanceClass,Engine:Engine,DBInstanceStatus:DBInstanceStatus,DBName:DBName,Endpoint:Endpoint,EngineVersion:EngineVersion}}'"
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        return True if len(self._operator.rds_databases) > 0 else False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        for i, db in enumerate(self._operator.rds_databases):
+            file.write(self._cmd.format(
+                region=db.region.name,
+                id=db.id) + "\n")
+            if i < len(self._operator.rds_databases) - 1:
+                file.write("sleep 2\n")
