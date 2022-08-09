@@ -6,14 +6,14 @@ regions:
         host: user.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
         port: 5432
         engine_type: postgresql
-        engine_version: 12.6
+        engine_version: "12.6"
         patch:
-          engine_version: 13.6
+          engine_version: "13.6"
       - id: address
         type: instance
         host: address.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
         patch:
-          engine_version: 13.6
+          engine_version: "13.6"
           class_type: db.t4g.small
       - id: audit_log
         type: instance
@@ -25,25 +25,25 @@ regions:
         host: subscription.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
         dbname: subscription_v1
         patch:
-          engine_version: 12.10
+          engine_version: "12.10"
           class_type: db.m6g.large
       - id: favorite
         type: instance
         host: favorite.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
         engine_type: mysql
-        engine_version: 5.7.37
+        engine_version: "5.7.37"
         dbname: favorite_v1
         patch:
-          engine_version: 8.0.30
+          engine_version: "8.0.30"
           class_type: db.m6g.large
       - id: bookmark
         type: instance
         host: bookmark.k3xsv7qtw4if.ap-east-1.rds.amazonaws.com
         engine_type: mysql
-        engine_version: 5.6.51
+        engine_version: "5.6.51"
         dbname: bookmark_v2
         patch:
-          engine_version: 8.0.30
+          engine_version: "8.0.30"
           class_type: db.m6g.small
     ecs:
       clusters:

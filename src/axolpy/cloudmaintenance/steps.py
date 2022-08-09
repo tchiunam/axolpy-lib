@@ -160,7 +160,7 @@ class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
 
 
 class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
-    _file_step_name: str = "apro-change-k8s-deployment-replicas"
+    _file_step_name: str = "change-k8s-deployment-replicas"
     _file_step_name_suffix: str = "RESUME"
     _file_extension: str = "sh"
 
@@ -198,7 +198,7 @@ class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
 
 
 class DumpPgstats(CloudMaintenanceStep):
-    _file_step_name: str = "apro-dump-pgstats"
+    _file_step_name: str = "dump-pgstats"
     _file_extension: str = "sh"
 
     _cmd: str = "psql -h {host} -p {port} -d {dbname} -U postgres -W -c 'select * from pg_stat_all_tables order by schemaname, relname' -o {id}-pg_stat-`date +%Y%m%d-%H%M%S`.csv"
@@ -229,7 +229,7 @@ class DumpPgstats(CloudMaintenanceStep):
 
 
 class DumpMysqlTableStatus(CloudMaintenanceStep):
-    _file_step_name: str = "apro-dump-mysqltablestatus"
+    _file_step_name: str = "dump-mysqltablestatus"
     _file_extension: str = "sh"
 
     _cmd: str = "mysql -h {host} -p {port} -d {dbname} -U root -p -e 'show table status' -o {id}-tablestatus-`date +%Y%m%d-%H%M%S`.txt"
@@ -256,3 +256,96 @@ class DumpMysqlTableStatus(CloudMaintenanceStep):
                 file.write("echo \"database id: {id}\"\n".format(id=db.id))
                 file.write(self._cmd.format(
                     host=db.host, port=db.port, dbname=db.dbname, id=db.id) + "\n")
+
+
+class ModifyDatabaseEngineVersion(CloudMaintenanceStep):
+    _file_step_name: str = "modify-database-engineversion"
+    _file_extension: str = "sh"
+
+    _cmd: str = "# aws rds modify-db-instance --region {region} --db-instance-identifier {id} --engine-version {version} --apply-immediately"
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        for db in self._operator.rds_databases:
+            if db.patch and hasattr(db.patch, "engine_version"):
+                return True
+
+        return False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        for i, db in enumerate(self._operator.rds_databases):
+            if db.patch and db.patch.engine_version:
+                file.write(self._cmd.format(
+                    region=db.region.name,
+                    id=db.id,
+                    version=db.patch.engine_version) + "\n")
+                if i < len(self._operator.rds_databases) - 1:
+                    file.write("# sleep 2\n")
+
+
+class ModifyDatabaseClassType(CloudMaintenanceStep):
+    _file_step_name: str = "modify-database-classtype"
+    _file_extension: str = "sh"
+
+    _cmd: str = "# aws rds modify-db-instance --region {region} --db-instance-identifier {id} --db-instance-class {class_type} --apply-immediately"
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        for db in self._operator.rds_databases:
+            if db.patch and hasattr(db.patch, "class_type"):
+                return True
+
+        return False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        for i, db in enumerate(self._operator.rds_databases):
+            if db.patch and db.patch.class_type:
+                file.write(self._cmd.format(
+                    region=db.region.name,
+                    id=db.id,
+                    class_type=db.patch.class_type) + "\n")
+                if i < len(self._operator.rds_databases) - 1:
+                    file.write("# sleep 2\n")
+
+
+class QueryDatabaseStatus(CloudMaintenanceStep):
+    _file_step_name: str = "query-database-status"
+    _file_extension: str = "sh"
+
+    _cmd: str = "aws rds describe-db-instances --region {region} --db-instance-identifier {id} --query 'DBInstances[*].{{DBInstanceIdentifier:DBInstanceIdentifier,DBInstanceClass:DBInstanceClass,Engine:Engine,DBInstanceStatus:DBInstanceStatus,DBName:DBName,Endpoint:Endpoint,EngineVersion:EngineVersion}}'"
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        return True if len(self._operator.rds_databases) > 0 else False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        for i, db in enumerate(self._operator.rds_databases):
+            file.write(self._cmd.format(
+                region=db.region.name,
+                id=db.id) + "\n")
+            if i < len(self._operator.rds_databases) - 1:
+                file.write("sleep 2\n")
