@@ -10,6 +10,7 @@ from axolpy.cloudmaintenance.steps import (CloudMaintenanceStep,
                                            QueryDatabaseStatus,
                                            QueryECSTaskStatus,
                                            QueryK8sDeploymentStatus,
+                                           RestartECSService,
                                            RestartK8sDeployment,
                                            UpdateECSTaskCount,
                                            UpdateK8sDeploymentReplicas,
@@ -319,6 +320,22 @@ class TestCloudMaintenanceStep(object):
         self._test_cloud_maintenance_step(
             step_no=0,
             cloud_maintenance_step_class=RestartK8sDeployment,
+            operators=operators,
+            expect_filenames=expect_filenames)
+
+    def test_restart_ecs_service(self, operators) -> None:
+        """
+        Test the restart ecs service step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator2-0-restart-ecs-service.sh"]
+
+        self._test_cloud_maintenance_step(
+            step_no=0,
+            cloud_maintenance_step_class=RestartECSService,
             operators=operators,
             expect_filenames=expect_filenames)
 

@@ -73,7 +73,7 @@ class CloudMaintenanceStep(ABC):
 
 class UpdateECSTaskCount(CloudMaintenanceStep):
     """
-    Generate a bash script to update the task count of an ECS service.
+    Generate a bash script to update the task count of ECS services.
     """
 
     _file_step_name: str = "update-ecs-task-count"
@@ -121,7 +121,7 @@ class UpdateECSTaskCount(CloudMaintenanceStep):
 
 class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
     """
-    Generate a bash script to update the replicas of a k8s statefulset.
+    Generate a bash script to update the replicas of k8s statefulsets.
     """
 
     _file_step_name: str = "update-k8s-statefulset-replicas"
@@ -169,6 +169,10 @@ class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
 
 
 class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
+    """
+    Generate a bash script to update the replicas of k8s deployments.
+    """
+
     _file_step_name: str = "change-k8s-deployment-replicas"
     _file_step_name_suffix: str = "RESUME"
     _file_extension: str = "sh"
@@ -214,6 +218,10 @@ class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
 
 
 class DumpPgstats(CloudMaintenanceStep):
+    """
+    Generate a bash script to dump pgstats.
+    """
+
     _file_step_name: str = "dump-pgstats"
     _file_extension: str = "sh"
 
@@ -246,6 +254,10 @@ class DumpPgstats(CloudMaintenanceStep):
 
 
 class DumpMysqlTableStatus(CloudMaintenanceStep):
+    """
+    Generate a bash script to dump mysql table status.
+    """
+
     _file_step_name: str = "dump-mysqltablestatus"
     _file_extension: str = "sh"
 
@@ -277,6 +289,10 @@ class DumpMysqlTableStatus(CloudMaintenanceStep):
 
 
 class ModifyDatabaseEngineVersion(CloudMaintenanceStep):
+    """
+    Generate a bash script to modify the engine version of databases.
+    """
+
     _file_step_name: str = "modify-database-engineversion"
     _file_extension: str = "sh"
 
@@ -311,6 +327,10 @@ class ModifyDatabaseEngineVersion(CloudMaintenanceStep):
 
 
 class ModifyDatabaseClassType(CloudMaintenanceStep):
+    """
+    Generate a bash script to modify the class type of databases.
+    """
+
     _file_step_name: str = "modify-database-classtype"
     _file_extension: str = "sh"
 
@@ -345,6 +365,10 @@ class ModifyDatabaseClassType(CloudMaintenanceStep):
 
 
 class QueryDatabaseStatus(CloudMaintenanceStep):
+    """
+    Generate a bash script to query the status of databases.
+    """
+
     _file_step_name: str = "query-database-status"
     _file_extension: str = "sh"
 
@@ -373,6 +397,10 @@ class QueryDatabaseStatus(CloudMaintenanceStep):
 
 
 class RestartK8sDeployment(CloudMaintenanceStep):
+    """
+    Generate a bash script to restart k8s deployments.
+    """
+
     _file_step_name: str = "restart-k8s-deployment"
     _file_extension: str = "sh"
 
@@ -410,7 +438,51 @@ class RestartK8sDeployment(CloudMaintenanceStep):
                         replicas=deployment.patch.replicas) + "\n")
 
 
+class RestartECSService(CloudMaintenanceStep):
+    """
+    Create a bash script to restart ECS services.
+    """
+
+    _file_step_name: str = "restart-ecs-service"
+    _file_extension: str = "sh"
+
+    _cmd: List[str] = [
+        "# aws ecs update-service --force-new-deployment --region {region} --cluster {cluster} --service {name}"]
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    _zeroinfy: bool = False
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        for service in self._operator.ecs_services:
+            if service.property("restart_after_upgrade"):
+                return True
+
+        return False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        for i, service in enumerate(self._operator.ecs_services):
+            if service.property("restart_after_upgrade"):
+                file.write(self._cmd[0].format(
+                    region=service.cluster.region.name,
+                    cluster=service.cluster.name,
+                    name=service.name) + "\n")
+                if i < len(self._operator.ecs_services) - 1:
+                    file.write("# sleep 2\n")
+
+
 class QueryK8sDeploymentStatus(CloudMaintenanceStep):
+    """
+    Create a bash script to query the status of k8s deployments.
+    """
+
     _file_step_name: str = "query-k8s-deployment-status"
     _file_extension: str = "sh"
 
@@ -443,6 +515,10 @@ class QueryK8sDeploymentStatus(CloudMaintenanceStep):
 
 
 class QueryECSTaskStatus(CloudMaintenanceStep):
+    """
+    Create a bash script to query the status of ECS tasks.
+    """
+
     _file_step_name: str = "query-ecs-task-status"
     _file_extension: str = "sh"
 
