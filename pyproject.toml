@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "axolpy-lib"
 description = "Axolotl Library in Python"
-version = "1.4.3"
+version = "1.4.4"
 authors = [
     { name = "tchiunam", email = "tchiunam@gmail.com" }
 ]
