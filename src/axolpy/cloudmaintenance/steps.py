@@ -102,19 +102,20 @@ class UpdateECSTaskCount(CloudMaintenanceStep):
     def _write_file_content(self, file: TextIOWrapper) -> None:
         file.writelines(self._content_header)
         for i, service in enumerate(self._operator.ecs_services):
-            count = service.desired_count
-            if self._zeroinfy:
-                count = 0
-            elif service.patch and service.patch.desired_count > 0:
-                count = service.patch.desired_count
+            if not service.property("restart_after_upgrade"):
+                count = service.desired_count
+                if self._zeroinfy:
+                    count = 0
+                elif service.patch and service.patch.desired_count > 0:
+                    count = service.patch.desired_count
 
-            file.write(self._cmd.format(
-                region=service.cluster.region.name,
-                cluster=service.cluster.name,
-                name=service.name,
-                count=count) + "\n")
-            if i < len(self._operator.ecs_services) - 1:
-                file.write("# sleep 2\n")
+                file.write(self._cmd.format(
+                    region=service.cluster.region.name,
+                    cluster=service.cluster.name,
+                    name=service.name,
+                    count=count) + "\n")
+                if i < len(self._operator.ecs_services) - 1:
+                    file.write("# sleep 2\n")
 
 
 class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
@@ -153,10 +154,16 @@ class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
         file.writelines(self._content_header)
         for statefulset in self._operator.eks_statefulsets:
             if not statefulset.property("restart_after_upgrade"):
+                replicas = statefulset.replicas
+                if self._zeroinfy:
+                    replicas = 0
+                elif statefulset.patch and statefulset.patch.replicas > 0:
+                    replicas = statefulset.patch.replicas
+
                 file.write(self._cmd.format(
                     namespace=statefulset.namespace.name,
                     name=statefulset.name,
-                    replicas=0 if self._zeroinfy else statefulset.replicas) + "\n")
+                    replicas=replicas) + "\n")
 
 
 class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
@@ -191,10 +198,16 @@ class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
         file.writelines(self._content_header)
         for deployment in self._operator.eks_deployments:
             if not deployment.property("restart_after_upgrade"):
+                replicas = deployment.replicas
+                if self._zeroinfy:
+                    replicas = 0
+                elif deployment.patch and deployment.patch.replicas > 0:
+                    replicas = deployment.patch.replicas
+
                 file.write(self._cmd.format(
                     namespace=deployment.namespace.name,
                     name=deployment.name,
-                    replicas=0 if self._zeroinfy else deployment.replicas) + "\n")
+                    replicas=replicas) + "\n")
 
 
 class DumpPgstats(CloudMaintenanceStep):
