@@ -7,6 +7,7 @@ from axolpy.cloudmaintenance.steps import (DumpMysqlTableStatus, DumpPgstats,
                                            ModifyDatabaseClassType,
                                            ModifyDatabaseEngineVersion,
                                            QueryDatabaseStatus,
+                                           QueryK8sDeploymentStatus,
                                            RestartK8sDeployment,
                                            UpdateECSTaskCount,
                                            UpdateK8sDeploymentReplicas,
@@ -427,6 +428,39 @@ class TestCloudMaintenanceStep(object):
                 operator=operator,
                 dist_path=self._dist_path)
             restart_k8s_deployment.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()
+
+    def test_query_k8s_deployment_status(self, operators) -> None:
+        """
+        Test the query k8s deployment status step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator1-0-query-k8s-deployment-status.sh",
+                            "operator2-0-query-k8s-deployment-status.sh",
+                            "operator3-0-query-k8s-deployment-status.sh"]
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            query_k8s_deployment_status = QueryK8sDeploymentStatus(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path)
+            query_k8s_deployment_status.write_file()
 
         for filename in expect_filenames:
             filepath = Path(self._dist_path, filename)
