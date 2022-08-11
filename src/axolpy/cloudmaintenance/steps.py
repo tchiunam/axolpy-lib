@@ -403,7 +403,6 @@ class QueryK8sDeploymentStatus(CloudMaintenanceStep):
 
     def _write_file_content(self, file: TextIOWrapper) -> None:
         file.writelines(self._content_header)
-
         namespace_dpms = dict()
         for dpm in self._operator.eks_deployments:
             if dpm.namespace.name not in namespace_dpms:
@@ -413,3 +412,40 @@ class QueryK8sDeploymentStatus(CloudMaintenanceStep):
             file.write(self._cmd.format(
                 namespace=namespace,
                 names=" ".join([deployment.name for deployment in deployments])) + "\n")
+
+
+class QueryECSTaskStatus(CloudMaintenanceStep):
+    _file_step_name: str = "query-ecs-task-status"
+    _file_extension: str = "sh"
+
+    _cmd: str = "aws ecs describe-services --region {region} --cluster {cluster} --services {names} --query 'services[*].{{ServiceArn:serviceArn,ServiceName:serviceName,Status:status,DesiredCount:desiredCount,RunningCount:runningCount,PendingCount:pendingCount,Events:events[:2]}}'"
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    _zeroinfy: bool = False
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        return True if len(self._operator.ecs_services) > 0 else False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+        rc_services = dict()
+        for service in self._operator.ecs_services:
+            if service.cluster.region.name not in rc_services:
+                rc_services[service.cluster.region.name] = dict()
+            if service.cluster.name not in rc_services[service.cluster.region.name]:
+                rc_services[service.cluster.region.name][service.cluster.name] = list()
+            rc_services[service.cluster.region.name][service.cluster.name].append(
+                service)
+        for region_name, clusters in rc_services.items():
+            for cluster_name, services in clusters.items():
+                file.write(self._cmd.format(
+                    region=region_name,
+                    cluster=cluster_name,
+                    names=" ".join([service.name for service in services])) + "\n")

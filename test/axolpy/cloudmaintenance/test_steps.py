@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 import pytest
 from axolpy.cloudmaintenance import Operator, ResourceDataLoader
@@ -7,6 +7,7 @@ from axolpy.cloudmaintenance.steps import (DumpMysqlTableStatus, DumpPgstats,
                                            ModifyDatabaseClassType,
                                            ModifyDatabaseEngineVersion,
                                            QueryDatabaseStatus,
+                                           QueryECSTaskStatus,
                                            QueryK8sDeploymentStatus,
                                            RestartK8sDeployment,
                                            UpdateECSTaskCount,
@@ -451,6 +452,70 @@ class TestCloudMaintenanceStep(object):
         expect_filenames = ["operator1-0-query-k8s-deployment-status.sh",
                             "operator2-0-query-k8s-deployment-status.sh",
                             "operator3-0-query-k8s-deployment-status.sh"]
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            query_k8s_deployment_status = QueryK8sDeploymentStatus(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path)
+            query_k8s_deployment_status.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()
+
+    def test_query_ecs_task_status(self, operators) -> None:
+        """
+        Test the query ecs task status step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator2-0-restart-k8s-deployment.sh",
+                            "operator3-0-restart-k8s-deployment.sh"]
+
+        for i in range(3):
+            id = f"operator{i+1}"
+            operator = operators[id]
+
+            query_ecs_task_status = QueryECSTaskStatus(
+                step_no=0,
+                operator=operator,
+                dist_path=self._dist_path)
+            query_ecs_task_status.write_file()
+
+        for filename in expect_filenames:
+            filepath = Path(self._dist_path, filename)
+            assert filepath.exists()
+            assert filepath.is_file()
+
+            # Verify that the file content is the same as file in dist-verify
+            filepath_verify = Path(self._dist_verify_path, filename)
+            with filepath.open() as f:
+                with filepath_verify.open() as f_verify:
+                    assert f.read() == f_verify.read()
+
+    def test_query_k8s_deployment_status(self, operators) -> None:
+        """
+        Test the query k8s deployment status step.
+
+        :param operators: A dictionary of Operators.
+        :type operators: Dict[:class:`Operator`]
+        """
+
+        expect_filenames = ["operator1-0-query-ecs-task-status.sh",
+                            "operator2-0-query-ecs-task-status.sh"]
 
         for i in range(3):
             id = f"operator{i+1}"
