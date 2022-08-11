@@ -15,7 +15,7 @@ class CloudMaintenanceStep(ABC):
     _file_step_name_suffix: str = None
     _file_extension: str = NotImplemented
 
-    _cmd: str = NotImplemented
+    _cmd: List[str] = NotImplemented
 
     _content_header: List[str] = NotImplemented
 
@@ -80,7 +80,8 @@ class UpdateECSTaskCount(CloudMaintenanceStep):
     _file_step_name_suffix: str = "RESUME"
     _file_extension: str = "sh"
 
-    _cmd: str = "# aws ecs update-service --region {region} --cluster {cluster} --service {name} --desired-count {count}"
+    _cmd: List[str] = [
+        "# aws ecs update-service --region {region} --cluster {cluster} --service {name} --desired-count {count}"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -109,7 +110,7 @@ class UpdateECSTaskCount(CloudMaintenanceStep):
                 elif service.patch and service.patch.desired_count > 0:
                     count = service.patch.desired_count
 
-                file.write(self._cmd.format(
+                file.write(self._cmd[0].format(
                     region=service.cluster.region.name,
                     cluster=service.cluster.name,
                     name=service.name,
@@ -127,7 +128,8 @@ class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
     _file_step_name_suffix: str = "RESUME"
     _file_extension: str = "sh"
 
-    _cmd: str = "# kubectl scale -n {namespace} statefulsets {name} --replicas={replicas}"
+    _cmd: List[str] = [
+        "# kubectl scale -n {namespace} statefulsets {name} --replicas={replicas}"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -160,7 +162,7 @@ class UpdateK8sStatefulSetReplicas(CloudMaintenanceStep):
                 elif statefulset.patch and statefulset.patch.replicas > 0:
                     replicas = statefulset.patch.replicas
 
-                file.write(self._cmd.format(
+                file.write(self._cmd[0].format(
                     namespace=statefulset.namespace.name,
                     name=statefulset.name,
                     replicas=replicas) + "\n")
@@ -171,7 +173,8 @@ class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
     _file_step_name_suffix: str = "RESUME"
     _file_extension: str = "sh"
 
-    _cmd: str = "# kubectl scale -n {namespace} deployment/{name} --replicas={replicas}"
+    _cmd: List[str] = [
+        "# kubectl scale -n {namespace} deployment/{name} --replicas={replicas}"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -204,7 +207,7 @@ class UpdateK8sDeploymentReplicas(CloudMaintenanceStep):
                 elif deployment.patch and deployment.patch.replicas > 0:
                     replicas = deployment.patch.replicas
 
-                file.write(self._cmd.format(
+                file.write(self._cmd[0].format(
                     namespace=deployment.namespace.name,
                     name=deployment.name,
                     replicas=replicas) + "\n")
@@ -214,7 +217,8 @@ class DumpPgstats(CloudMaintenanceStep):
     _file_step_name: str = "dump-pgstats"
     _file_extension: str = "sh"
 
-    _cmd: str = "psql -h {host} -p {port} -d {dbname} -U postgres -W -c 'select * from pg_stat_all_tables order by schemaname, relname' -o {id}-pg_stat-`date +%Y%m%d-%H%M%S`.csv"
+    _cmd: List[str] = [
+        "psql -h {host} -p {port} -d {dbname} -U postgres -W -c 'select * from pg_stat_all_tables order by schemaname, relname' -o {id}-pg_stat-`date +%Y%m%d-%H%M%S`.csv"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -237,7 +241,7 @@ class DumpPgstats(CloudMaintenanceStep):
             if db.is_postgresql():
                 file.write(
                     "echo \"database id: {id}\"\n".format(id=db.id))
-                file.write(self._cmd.format(
+                file.write(self._cmd[0].format(
                     host=db.host, port=db.port, dbname=db.dbname, id=db.id) + "\n")
 
 
@@ -245,7 +249,8 @@ class DumpMysqlTableStatus(CloudMaintenanceStep):
     _file_step_name: str = "dump-mysqltablestatus"
     _file_extension: str = "sh"
 
-    _cmd: str = "mysql -h {host} -p {port} -d {dbname} -U root -p -e 'show table status' -o {id}-tablestatus-`date +%Y%m%d-%H%M%S`.txt"
+    _cmd: List[str] = [
+        "mysql -h {host} -p {port} -d {dbname} -U root -p -e 'show table status' -o {id}-tablestatus-`date +%Y%m%d-%H%M%S`.txt"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -267,7 +272,7 @@ class DumpMysqlTableStatus(CloudMaintenanceStep):
         for db in self._operator.rds_databases:
             if db.is_mysql():
                 file.write("echo \"database id: {id}\"\n".format(id=db.id))
-                file.write(self._cmd.format(
+                file.write(self._cmd[0].format(
                     host=db.host, port=db.port, dbname=db.dbname, id=db.id) + "\n")
 
 
@@ -275,7 +280,8 @@ class ModifyDatabaseEngineVersion(CloudMaintenanceStep):
     _file_step_name: str = "modify-database-engineversion"
     _file_extension: str = "sh"
 
-    _cmd: str = "# aws rds modify-db-instance --region {region} --db-instance-identifier {id} --engine-version {version} --apply-immediately"
+    _cmd: List[str] = [
+        "# aws rds modify-db-instance --region {region} --db-instance-identifier {id} --engine-version {version} --apply-immediately"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -296,7 +302,7 @@ class ModifyDatabaseEngineVersion(CloudMaintenanceStep):
         file.writelines(self._content_header)
         for i, db in enumerate(self._operator.rds_databases):
             if db.patch and db.patch.engine_version:
-                file.write(self._cmd.format(
+                file.write(self._cmd[0].format(
                     region=db.region.name,
                     id=db.id,
                     version=db.patch.engine_version) + "\n")
@@ -308,7 +314,8 @@ class ModifyDatabaseClassType(CloudMaintenanceStep):
     _file_step_name: str = "modify-database-classtype"
     _file_extension: str = "sh"
 
-    _cmd: str = "# aws rds modify-db-instance --region {region} --db-instance-identifier {id} --db-instance-class {class_type} --apply-immediately"
+    _cmd: List[str] = [
+        "# aws rds modify-db-instance --region {region} --db-instance-identifier {id} --db-instance-class {class_type} --apply-immediately"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -329,7 +336,7 @@ class ModifyDatabaseClassType(CloudMaintenanceStep):
         file.writelines(self._content_header)
         for i, db in enumerate(self._operator.rds_databases):
             if db.patch and db.patch.class_type:
-                file.write(self._cmd.format(
+                file.write(self._cmd[0].format(
                     region=db.region.name,
                     id=db.id,
                     class_type=db.patch.class_type) + "\n")
@@ -341,7 +348,8 @@ class QueryDatabaseStatus(CloudMaintenanceStep):
     _file_step_name: str = "query-database-status"
     _file_extension: str = "sh"
 
-    _cmd: str = "aws rds describe-db-instances --region {region} --db-instance-identifier {id} --query 'DBInstances[*].{{DBInstanceIdentifier:DBInstanceIdentifier,DBInstanceClass:DBInstanceClass,Engine:Engine,DBInstanceStatus:DBInstanceStatus,DBName:DBName,Endpoint:Endpoint,EngineVersion:EngineVersion}}'"
+    _cmd: List[str] = [
+        "aws rds describe-db-instances --region {region} --db-instance-identifier {id} --query 'DBInstances[*].{{DBInstanceIdentifier:DBInstanceIdentifier,DBInstanceClass:DBInstanceClass,Engine:Engine,DBInstanceStatus:DBInstanceStatus,DBName:DBName,Endpoint:Endpoint,EngineVersion:EngineVersion}}'"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -357,7 +365,7 @@ class QueryDatabaseStatus(CloudMaintenanceStep):
     def _write_file_content(self, file: TextIOWrapper) -> None:
         file.writelines(self._content_header)
         for i, db in enumerate(self._operator.rds_databases):
-            file.write(self._cmd.format(
+            file.write(self._cmd[0].format(
                 region=db.region.name,
                 id=db.id) + "\n")
             if i < len(self._operator.rds_databases) - 1:
@@ -368,7 +376,9 @@ class RestartK8sDeployment(CloudMaintenanceStep):
     _file_step_name: str = "restart-k8s-deployment"
     _file_extension: str = "sh"
 
-    _cmd: str = "# kubectl rollout restart -n {namespace} deployment/{name}"
+    _cmd: List[str] = [
+        "# kubectl rollout restart -n {namespace} deployment/{name}",
+        "# kubectl scale -n {namespace} deployment/{name} --replicas={replicas}"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -391,15 +401,20 @@ class RestartK8sDeployment(CloudMaintenanceStep):
         file.writelines(self._content_header)
         for deployment in self._operator.eks_deployments:
             if deployment.property("restart_after_upgrade"):
-                file.write(self._cmd.format(
+                file.write(self._cmd[0].format(
                     namespace=deployment.namespace.name, name=deployment.name) + "\n")
+                if deployment.patch and deployment.patch.replicas > 0:
+                    file.write(self._cmd[1].format(
+                        namespace=deployment.namespace.name,
+                        name=deployment.name,
+                        replicas=deployment.patch.replicas) + "\n")
 
 
 class QueryK8sDeploymentStatus(CloudMaintenanceStep):
     _file_step_name: str = "query-k8s-deployment-status"
     _file_extension: str = "sh"
 
-    _cmd: str = "kubectl get deployments -n {namespace} {names}"
+    _cmd: List[str] = ["kubectl get deployments -n {namespace} {names}"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -422,7 +437,7 @@ class QueryK8sDeploymentStatus(CloudMaintenanceStep):
                 namespace_dpms[dpm.namespace.name] = list()
             namespace_dpms[dpm.namespace.name].append(dpm)
         for namespace, deployments in namespace_dpms.items():
-            file.write(self._cmd.format(
+            file.write(self._cmd[0].format(
                 namespace=namespace,
                 names=" ".join([deployment.name for deployment in deployments])) + "\n")
 
@@ -431,7 +446,8 @@ class QueryECSTaskStatus(CloudMaintenanceStep):
     _file_step_name: str = "query-ecs-task-status"
     _file_extension: str = "sh"
 
-    _cmd: str = "aws ecs describe-services --region {region} --cluster {cluster} --services {names} --query 'services[*].{{ServiceArn:serviceArn,ServiceName:serviceName,Status:status,DesiredCount:desiredCount,RunningCount:runningCount,PendingCount:pendingCount,Events:events[:2]}}'"
+    _cmd: List[str] = [
+        "aws ecs describe-services --region {region} --cluster {cluster} --services {names} --query 'services[*].{{ServiceArn:serviceArn,ServiceName:serviceName,Status:status,DesiredCount:desiredCount,RunningCount:runningCount,PendingCount:pendingCount,Events:events[:2]}}'"]
 
     _content_header: List[str] = ["#!/bin/bash\n\n"]
 
@@ -458,7 +474,7 @@ class QueryECSTaskStatus(CloudMaintenanceStep):
                 service)
         for region_name, clusters in rc_services.items():
             for cluster_name, services in clusters.items():
-                file.write(self._cmd.format(
+                file.write(self._cmd[0].format(
                     region=region_name,
                     cluster=cluster_name,
                     names=" ".join([service.name for service in services])) + "\n")
