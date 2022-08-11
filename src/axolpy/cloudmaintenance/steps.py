@@ -380,3 +380,36 @@ class RestartK8sDeployment(CloudMaintenanceStep):
             if deployment.property("restart_after_upgrade"):
                 file.write(self._cmd.format(
                     namespace=deployment.namespace.name, name=deployment.name) + "\n")
+
+
+class QueryK8sDeploymentStatus(CloudMaintenanceStep):
+    _file_step_name: str = "query-k8s-deployment-status"
+    _file_extension: str = "sh"
+
+    _cmd: str = "kubectl get deployments -n {namespace} {names}"
+
+    _content_header: List[str] = ["#!/bin/bash\n\n"]
+
+    _zeroinfy: bool = False
+
+    def __init__(self,
+                 step_no: int,
+                 operator: Operator,
+                 dist_path: Path) -> None:
+        super().__init__(step_no=step_no, operator=operator, dist_path=dist_path)
+
+    def eligible(self) -> bool:
+        return True if len(self._operator.eks_deployments) > 0 else False
+
+    def _write_file_content(self, file: TextIOWrapper) -> None:
+        file.writelines(self._content_header)
+
+        namespace_dpms = dict()
+        for dpm in self._operator.eks_deployments:
+            if dpm.namespace.name not in namespace_dpms:
+                namespace_dpms[dpm.namespace.name] = list()
+            namespace_dpms[dpm.namespace.name].append(dpm)
+        for namespace, deployments in namespace_dpms.items():
+            file.write(self._cmd.format(
+                namespace=namespace,
+                names=" ".join([deployment.name for deployment in deployments])) + "\n")
