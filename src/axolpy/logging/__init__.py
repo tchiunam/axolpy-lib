@@ -39,7 +39,7 @@ def load_config(filename: str = "logging.yaml") -> None:
             "Logging configuration file 'logging.yaml' not found $AXOLPY_PATH/conf")
 
 
-def get_logger(name: str = None, level: int = None) -> logging.Logger:
+def get_logger(name: str = None, level: int = NOTSET) -> logging.Logger:
     """
     Return a logger with the specified *name*. A new logger will
     be it doesn't exist. Root logger is returned if *name* is None.
@@ -53,15 +53,15 @@ def get_logger(name: str = None, level: int = None) -> logging.Logger:
     :rtype: :class:`logging.Logger`
     """
 
-    default_level = None
-    default_name = "root"
+    default_level: int = NOTSET
+    default_name: str = "root"
     try:
         config = AxolpyConfigManager.get_context()
         if "logging" in config:
             if "logger.default.level" in config["logging"]:
                 default_level = getattr(
                     sys.modules[__name__],
-                    config["logging"]["logger.default.level"], None)
+                    config["logging"]["logger.default.level"], NOTSET)
             if "logger.default.name" in config["logging"]:
                 default_name = config["logging"]["logger.default.name"]
     except FileNotFoundError:
@@ -72,7 +72,7 @@ def get_logger(name: str = None, level: int = None) -> logging.Logger:
     # Replace spaces with hyphens in the name
     # so that parsing of log is easier
     logger = logging.getLogger(name=name.replace(" ", "-"))
-    if level is None:
+    if level == NOTSET:
         if default_level is not None:
             logger.setLevel(default_level)
     else:
