@@ -63,6 +63,14 @@ regions:
             desired_count: 10
             properties:
               restart_after_upgrade: True
+          - name: p-process-pending-txn-api
+            desired_count: 3
+            patch:
+              desired_count: 9
+            properties:
+              restart_after_upgrade: True
+          - name: p-payproxy-api
+            desired_count: 1
     eks:
       clusters:
         p-main:
