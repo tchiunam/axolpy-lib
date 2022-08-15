@@ -10,6 +10,8 @@ operator1:
         Production:
           services:
           - name: p-authentication-api
+          - name: p-process-pending-txn-api
+          - name: p-payproxy-api
     eks:
       clusters:
         p-main:

@@ -14,5 +14,5 @@ loggers:
     handlers: [console]
     propagate: no
 root:
-  level: WARN
+  level: WARNING
   handlers: [console]
