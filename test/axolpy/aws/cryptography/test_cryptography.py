@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 from axolpy.cryptography import (decrypt_message, encrypt_message,
-                                 generate_key, load_key)
+                                 generate_key_file, load_key)
 
 
 class TestEncryptDecryptMessage(object):
@@ -13,12 +13,12 @@ class TestEncryptDecryptMessage(object):
     _testdata_path = Path(__file__).parent.joinpath("testdata")
     _test_key_file_path = _testdata_path / "secret-test.key"
 
-    def test_generate_key(self) -> None:
+    def test_generate_key_file(self) -> None:
         """
-        Test to generate a key.
+        Test to generate a cryptography key file.
         """
 
-        key_file_path = generate_key(path=self._testdata_path)
+        key_file_path = generate_key_file(path=self._testdata_path)
         assert key_file_path.exists()
         assert key_file_path.is_file()
 
@@ -27,7 +27,7 @@ class TestEncryptDecryptMessage(object):
                 assert len(key_file.read()) == 44
 
             with pytest.raises(FileExistsError):
-                generate_key(path=self._testdata_path)
+                generate_key_file(path=self._testdata_path)
         finally:
             key_file_path.unlink()
 

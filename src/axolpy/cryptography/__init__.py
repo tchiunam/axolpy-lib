@@ -3,7 +3,18 @@ from pathlib import Path
 from cryptography.fernet import Fernet
 
 
-def generate_key(path: Path = None) -> Path:
+def generate_key() -> bytes:
+    """
+    Generate a cryptography key.
+
+    :return: Key.
+    :rtype: bytes
+    """
+
+    return Fernet.generate_key()
+
+
+def generate_key_file(path: Path = None) -> Path:
     """
     Generate a key and save it to the given path.
 
@@ -15,12 +26,11 @@ def generate_key(path: Path = None) -> Path:
     :rtype: Path
     """
 
-    key = Fernet.generate_key()
     key_file_path = path / "secret.key" if path else Path.cwd() / "secret.key"
     if key_file_path.exists():
         raise FileExistsError("secret.key file already exists.")
     with key_file_path.open("wb") as key_file:
-        key_file.write(key)
+        key_file.write(generate_key())
 
     return key_file_path
 
