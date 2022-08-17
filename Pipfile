@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-# Solidity
+# Web3
 py-solc-x = ">=1.1.1"
 
 # Testing

@@ -24,12 +24,15 @@ classifiers = [
     "Topic :: Utilities",
 ]
 dependencies = [
+    "pytest",
     "pyyaml",
 ]
 
 [project.optional-dependencies]
-web3 = ["py-solc-x"]
 atlassian = ["atlassian-python-api"]
+cryptography = ["cryptography"]
+testing = ["pytest-html", "coverage"]
+web3 = ["py-solc-x"]
 
 [project.urls]
 homepage = "https://github.com/tchiunam/axolpy-lib"
