@@ -70,12 +70,12 @@ def encrypt_message(message: str, key: bytes | Path) -> bytes:
     return f.encrypt(data=encoded_message)
 
 
-def decrypt_message(encrypted_message: bytes, key: bytes | Path) -> bytes:
+def decrypt_message(encrypted_message: bytes | str, key: bytes | Path) -> bytes:
     """
     Decrypt an encrypted message.
 
     :param encrypted_message: Encrypted message to decrypt.
-    :type encrypted_message: bytes
+    :type encrypted_message: bytes | str
     :param key: Key to use for decryption.
     :type key: bytes | Path
 
@@ -86,4 +86,5 @@ def decrypt_message(encrypted_message: bytes, key: bytes | Path) -> bytes:
     if isinstance(key, Path):
         key = load_key(key)
     f = Fernet(key)
-    return f.decrypt(token=encrypted_message)
+    return f.decrypt(token=encrypted_message.encode()
+                     if isinstance(encrypted_message, str) else encrypted_message)
