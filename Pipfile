@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-# Web3
+# Blockchain
 py-solc-x = ">=1.1.1"
 
 # Testing
@@ -12,11 +12,12 @@ pytest = ">=7.1.2"
 pytest-html = ">=3.1.1"
 coverage = ">=6.4.4"
 
-# Ecnrypting
+# Ecnryption
 cryptography = ">=37.0.4"
 
 # Others
 atlassian-python-api = ">=3.26.0"
+prompt_toolkit = ">=3.0.30"
 pyyaml = ">=6.0"
 
 # IDE
