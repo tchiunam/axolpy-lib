@@ -49,12 +49,12 @@ def load_key(key_file_path: Path) -> bytes:
     return key_file_path.open("rb").read()
 
 
-def encrypt_message(message: str, key: bytes | Path) -> bytes:
+def encrypt_message(message: bytes | str, key: bytes | Path) -> bytes:
     """
     Encrypt a message.
 
     :param message: Message to encrypt.
-    :type message: str
+    :type message: bytes | str
     :param key: Key to use for encryption.
     :type key: bytes | Path
 
@@ -62,20 +62,20 @@ def encrypt_message(message: str, key: bytes | Path) -> bytes:
     :rtype: bytes
     """
 
-    encoded_message = message.encode()
-
     if isinstance(key, Path):
         key = load_key(key)
     f = Fernet(key)
-    return f.encrypt(data=encoded_message)
+    return f.encrypt(data=message
+                     if isinstance(message, bytes)
+                     else message.encode())
 
 
-def decrypt_message(encrypted_message: bytes, key: bytes | Path) -> bytes:
+def decrypt_message(encrypted_message: bytes | str, key: bytes | Path) -> bytes:
     """
     Decrypt an encrypted message.
 
     :param encrypted_message: Encrypted message to decrypt.
-    :type encrypted_message: bytes
+    :type encrypted_message: bytes | str
     :param key: Key to use for decryption.
     :type key: bytes | Path
 
@@ -86,4 +86,6 @@ def decrypt_message(encrypted_message: bytes, key: bytes | Path) -> bytes:
     if isinstance(key, Path):
         key = load_key(key)
     f = Fernet(key)
-    return f.decrypt(token=encrypted_message)
+    return f.decrypt(token=encrypted_message
+                     if isinstance(encrypted_message, bytes)
+                     else encrypted_message.encode())
