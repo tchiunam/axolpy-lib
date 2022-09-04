@@ -107,12 +107,16 @@ def generate_random_string(
     :rtype: str
     """
 
-    s = string.ascii_letters if with_letters else ""
-    s += string.digits if with_digits else ""
-    s += string.punctuation if with_punctuation else ""
+    characters = string.ascii_letters if with_letters else ""
+    characters += string.digits if with_digits else ""
+    characters += string.punctuation if with_punctuation else ""
 
     # Must have at least letters
-    if not s:
-        s = string.ascii_letters
+    if not characters:
+        characters = string.ascii_letters
 
-    return "".join(random.choice(s) for _ in range(length))
+    character_list = list(characters)
+    random.SystemRandom().shuffle(character_list)
+    characters = "".join(characters)
+
+    return "".join(random.choice(characters) for _ in range(length))
