@@ -46,3 +46,11 @@ def test_multiple_replace() -> None:
 
     assert string.multiple_replace("Python is a high-level, interpreted, general-purpose programming language",
                                    {"Python": "C", "high-level": "low-level", "interpreted": "compiled"}) == "C is a low-level, compiled, general-purpose programming language"
+
+
+def test_generate_random_string() -> None:
+    """
+    Test to generate a random string.
+    """
+
+    assert len(string.generate_random_string(length=10)) == 10

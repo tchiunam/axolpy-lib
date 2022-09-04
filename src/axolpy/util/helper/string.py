@@ -1,5 +1,7 @@
 import hashlib
+import random
 import re
+import string
 from itertools import chain
 from typing import Iterable
 
@@ -81,3 +83,17 @@ def multiple_replace(string: str, rep: dict) -> str:
 
     pattern = re.compile("|".join([re.escape(k) for k in rep.keys()]), re.M)
     return pattern.sub(lambda x: rep[x.group(0)], string)
+
+
+def generate_random_string(length: int) -> str:
+    """
+    Generate random string with *length*.
+
+    :param length: Length of random string.
+    :type length: int
+
+    :return: Random string.
+    :rtype: str
+    """
+
+    return ''.join(random.choice(string.ascii_letters) for _ in range(length))
