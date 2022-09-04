@@ -89,7 +89,8 @@ def generate_random_string(
         length: int,
         with_letters=True,
         with_digits=False,
-        with_punctuation=False) -> str:
+        with_punctuation=False,
+        allow_repeat=True) -> str:
     """
     Generate random string with *length*. If all the options are False, then
     the string will be generated with letters only.
@@ -102,6 +103,8 @@ def generate_random_string(
     :type with_digits: bool
     :param with_punctuation: Whether to include punctuation in the random string.
     :type with_punctuation: bool
+    :param allow_repeat: Whether to allow repeat characters in the random string. Default is True.
+    :type allow_repeat: bool
 
     :return: Random string.
     :rtype: str
@@ -119,4 +122,7 @@ def generate_random_string(
     random.SystemRandom().shuffle(character_list)
     characters = "".join(characters)
 
-    return "".join(random.choice(characters) for _ in range(length))
+    if allow_repeat:
+        return "".join(random.choice(characters) for _ in range(length))
+    else:
+        return "".join(random.sample(characters, length))
