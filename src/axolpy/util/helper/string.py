@@ -87,17 +87,20 @@ def multiple_replace(string: str, rep: dict) -> str:
 
 def generate_random_string(
         length: int,
-        with_lowercase_letters=True,
-        with_uppercase_letters=True,
-        with_digits=False,
-        with_punctuation=False,
-        allow_repeat=True) -> str:
+        characters: str = None,
+        with_lowercase_letters: bool = True,
+        with_uppercase_letters: bool = True,
+        with_digits: bool = False,
+        with_punctuation: bool = False,
+        allow_repeat: bool = True) -> str:
     """
     Generate random string with *length*. If all the options are False, then
     the string will be generated with letters only.
 
     :param length: Length of random string.
     :type length: int
+    :param characters: Customized choice of characters to be used. All with_* options will be ignored if this is set.
+    :type characters: str
     :param with_lowercase_letters: Whether to include lowercase letters. Default is True.
     :type with_lowercase_letters: bool
     :param with_uppercase_letters: Whether to include uppercase letters. Default is True.
@@ -113,10 +116,12 @@ def generate_random_string(
     :rtype: str
     """
 
-    characters = string.ascii_lowercase if with_lowercase_letters else ""
-    characters += string.ascii_uppercase if with_uppercase_letters else ""
-    characters += string.digits if with_digits else ""
-    characters += string.punctuation if with_punctuation else ""
+    # If characters is set, then ignore all with_* options.
+    if not characters:
+        characters = string.ascii_lowercase if with_lowercase_letters else ""
+        characters += string.ascii_uppercase if with_uppercase_letters else ""
+        characters += string.digits if with_digits else ""
+        characters += string.punctuation if with_punctuation else ""
 
     # Must have at least letters
     if not characters:

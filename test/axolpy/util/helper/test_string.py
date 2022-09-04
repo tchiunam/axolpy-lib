@@ -1,3 +1,4 @@
+import pytest
 from axolpy.util.helper import string
 
 
@@ -74,3 +75,10 @@ def test_generate_random_string() -> None:
         with_digits=True,
         with_punctuation=True,
         allow_repeat=False)) == 18
+    assert len(string.generate_random_string(
+        length=21,
+        characters="YiiX4jYdoRCktFN")) == 21
+    with pytest.raises(ValueError):
+        string.generate_random_string(length=5,
+                                      characters="abc",
+                                      allow_repeat=False)
