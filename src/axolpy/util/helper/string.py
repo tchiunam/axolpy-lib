@@ -87,7 +87,8 @@ def multiple_replace(string: str, rep: dict) -> str:
 
 def generate_random_string(
         length: int,
-        with_letters=True,
+        with_lowercase_letters=True,
+        with_uppercase_letters=True,
         with_digits=False,
         with_punctuation=False,
         allow_repeat=True) -> str:
@@ -97,8 +98,10 @@ def generate_random_string(
 
     :param length: Length of random string.
     :type length: int
-    :param with_letters: Whether to include letters in the random string. Default is True.
-    :type with_letters: bool
+    :param with_lowercase_letters: Whether to include lowercase letters. Default is True.
+    :type with_lowercase_letters: bool
+    :param with_uppercase_letters: Whether to include uppercase letters. Default is True.
+    :type with_uppercase_letters: bool
     :param with_digits: Whether to include digits in the random string.
     :type with_digits: bool
     :param with_punctuation: Whether to include punctuation in the random string.
@@ -110,7 +113,8 @@ def generate_random_string(
     :rtype: str
     """
 
-    characters = string.ascii_letters if with_letters else ""
+    characters = string.ascii_lowercase if with_lowercase_letters else ""
+    characters += string.ascii_uppercase if with_uppercase_letters else ""
     characters += string.digits if with_digits else ""
     characters += string.punctuation if with_punctuation else ""
 

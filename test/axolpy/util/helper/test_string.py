@@ -54,12 +54,23 @@ def test_generate_random_string() -> None:
     """
 
     assert len(string.generate_random_string(length=10)) == 10
+    assert len(string.generate_random_string(
+        length=10,
+        with_uppercase_letters=False)) == 10
     # Letters will be used if no characters are specified
     assert len(string.generate_random_string(
-        length=13, with_letters=False)) == 13
+        length=13,
+        with_lowercase_letters=False,
+        with_uppercase_letters=False)) == 13
     assert len(string.generate_random_string(
-        length=15, with_digits=True)) == 15
+        length=15,
+        with_digits=True)) == 15
     assert len(string.generate_random_string(
-        length=20, with_digits=True, with_punctuation=True)) == 20
+        length=20,
+        with_digits=True,
+        with_punctuation=True)) == 20
     assert len(string.generate_random_string(
-        length=18, with_digits=True, with_punctuation=True, allow_repeat=False)) == 18
+        length=18,
+        with_digits=True,
+        with_punctuation=True,
+        allow_repeat=False)) == 18
