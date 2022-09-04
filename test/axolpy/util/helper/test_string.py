@@ -61,3 +61,5 @@ def test_generate_random_string() -> None:
         length=15, with_digits=True)) == 15
     assert len(string.generate_random_string(
         length=20, with_digits=True, with_punctuation=True)) == 20
+    assert len(string.generate_random_string(
+        length=18, with_digits=True, with_punctuation=True, allow_repeat=False)) == 18
