@@ -85,15 +85,34 @@ def multiple_replace(string: str, rep: dict) -> str:
     return pattern.sub(lambda x: rep[x.group(0)], string)
 
 
-def generate_random_string(length: int) -> str:
+def generate_random_string(
+        length: int,
+        with_letters=True,
+        with_digits=False,
+        with_punctuation=False) -> str:
     """
-    Generate random string with *length*.
+    Generate random string with *length*. If all the options are False, then
+    the string will be generated with letters only.
 
     :param length: Length of random string.
     :type length: int
+    :param with_letters: Whether to include letters in the random string. Default is True.
+    :type with_letters: bool
+    :param with_digits: Whether to include digits in the random string.
+    :type with_digits: bool
+    :param with_punctuation: Whether to include punctuation in the random string.
+    :type with_punctuation: bool
 
     :return: Random string.
     :rtype: str
     """
 
-    return ''.join(random.choice(string.ascii_letters) for _ in range(length))
+    s = string.ascii_letters if with_letters else ""
+    s += string.digits if with_digits else ""
+    s += string.punctuation if with_punctuation else ""
+
+    # Must have at least letters
+    if not s:
+        s = string.ascii_letters
+
+    return "".join(random.choice(s) for _ in range(length))
