@@ -74,39 +74,62 @@ aims at providing a handy all-in-one package for writing useful applications.
 PyPi project: https://pypi.org/project/axolpy-lib
 
 ## Install axolpy-lib
-```
+```console
 pip install axolpy-lib
 ```
 
-## Run test
-To run pytest
+### Install dependencies
+Since this package contains libraries for many areas, not all dependencies
+are configured as hard dependency and installed together with **axolpy-lib**. Therefore
+you can decide what to not install to save your space. However, if you want to use
+all features or develop on top of this package, you will have to install all dependencies.
+#### Recommended way
+You are recommended to use [pyenv](https://github.com/pyenv/pyenv) and [pipenv](https://github.com/pypa/pipenv)
+to install the dependencies. To install all dependencies:
+```console
+pipenv install
 ```
+
+To install particlular package only:
+```console
+pipenv install pyyaml
+```
+
+#### Alternative
+You can install dependencies with the old way by using requirements.txt.
+```console
+pip install -r requirements.txt
+```
+
+## Run test
+To run pytest:
+```console
 pytest
 ```
 
 To run test with coverage result:
-```
+```console
 coverage run -m pytest
 ```
 
 To generate test coverage report:
-```
+```console
 coverage report -m
 ```
 
 To generate test coverage report in html:
-```
+```console
 coverage html
 ```
 
 ## Build axolpy-lib package
 To build with wheel:
-```
+```console
 python -m build
 ```
 
 You will see output like this:
-```
+```console
 * Creating venv isolated environment...
 * Installing packages in isolated environment... (setuptools>=42, wheel)
 * Getting dependencies for sdist...
