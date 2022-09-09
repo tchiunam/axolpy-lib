@@ -52,7 +52,7 @@ def animal_tree() -> dict:
                                    "bird": {"canary": "tweetle"}},
                        "mammal": {"dog": "poodle",
                                   "cat": "tabby",
-                                  "horse": "filly",
+                                  "horse": {"pony": "stallion"},
                                   "bovine": {"cow": "bessie"}}}}
 
 
@@ -61,6 +61,8 @@ def test_set_leaf(animal_tree) -> None:
     Test to set a leaf within a nested dictionary.
     """
 
-    helper.set_leaf(animal_tree, ["animal", "mammal", "horse"], {
-                    "stallion": "buck"})
-    assert animal_tree["animal"]["mammal"]["horse"]["stallion"] == "buck", "Leaf not set"
+    helper.set_leaf(tree=animal_tree,
+                    branches=["animal", "mammal", "kangaroo", "brown"],
+                    leaf={"stallion": "buck"}
+                    )
+    assert animal_tree["animal"]["mammal"]["kangaroo"]["brown"]["stallion"] == "buck", "Leaf not set"
