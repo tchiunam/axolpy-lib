@@ -67,9 +67,9 @@
 </div>
 
 <br />
-This is the library and useful scripts of the Axolotl series in 
-Python. The implementation of it aims at providing a handy all-in-one 
-package for writing useful applications.
+
+This is the library of the Axolotl series in Python. The implementation of it
+aims at providing a handy all-in-one package for writing useful applications.
 
 PyPi project: https://pypi.org/project/axolpy-lib
 
@@ -117,7 +117,7 @@ Successfully built axolpy-lib-1.0.0.tar.gz and axolpy_lib-1.0.0-py3-none-any.whl
 
 ## Test report
 ## Code Coverage graph
-![Code Coverage graph](https://codecov.io/gh/tchiunam/axolpy-lib/branch/main/graphs/tree.svg?token=JZTOZY5UXL)
+[![Code Coverage graph](https://codecov.io/gh/tchiunam/axolpy-lib/branch/main/graphs/tree.svg?token=JZTOZY5UXL)](https://app.codecov.io/gh/tchiunam/axolpy-lib)
 
 ---
 #### See more  
