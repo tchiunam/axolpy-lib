@@ -17,7 +17,7 @@ class AxolpyConfigManager(object):
         :rtype: :class:`pathlib.Path`
         """
 
-        return Path(os.getenv("AXOLPY_PATH", "~/axolpy"))
+        return Path(os.getenv("AXOLPY_PATH", os.path.expanduser("~/axolpy")))
 
     @staticmethod
     def get_config_path() -> Path:
