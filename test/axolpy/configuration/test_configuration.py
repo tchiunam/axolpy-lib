@@ -23,7 +23,7 @@ class TestAxolpyConfigManager(object):
 
         del os.environ["AXOLPY_PATH"]
         basepath = AxolpyConfigManager.get_basepath()
-        assert basepath == Path("~/axolpy")
+        assert basepath == Path(os.path.expanduser("~/axolpy"))
 
         os.environ["AXOLPY_PATH"] = str(axolpy_path)
 
